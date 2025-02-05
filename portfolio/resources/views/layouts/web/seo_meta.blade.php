@@ -81,8 +81,6 @@
         loadMorePosts = "{{ $config->load_more_text ?? 'Tải thêm bài viết' }}", // Text cho nút tải thêm bài
         postPerPage = {{ $config->posts_per_page ?? 6 }}, // Số bài viết mỗi trang
         pageOfText = {!! json_encode($config->page_of_text ?? ['Trang', 'của']) !!}, // Text cho phân trang
-        fixedSidebar = {{ $config->fixed_sidebar ? 'true' : 'false' }}, // Cố định sidebar khi cuộn
-        fixedMenu = {{ $config->fixed_menu ? 'true' : 'false' }}, // Cố định menu khi cuộn
         disqusShortname = "{{ $config->disqus_shortname ?? '' }}"; // Shortname Disqus nếu sử dụng
     //]]>
 </script>

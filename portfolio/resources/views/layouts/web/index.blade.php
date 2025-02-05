@@ -4,6 +4,7 @@
 <head>
     <title>Appiki</title>
     @include('layouts.web.header_css')
+    @include('layouts.web.seo_meta')
     @stack('header_css')
 </head>
 
@@ -82,6 +83,7 @@
     <div id="outer-wrapper">
         @include('layouts.web.nav')
         @include('layouts.web.header')
+        @include('layouts.web.banner')
         <div class="clearfix"></div>
         <div class="mega-wrap-center">
             <div class="container">

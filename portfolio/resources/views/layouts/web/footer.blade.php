@@ -78,7 +78,7 @@
         <div class="footer-copyright section" id="footer-copyright" name="Footer Attribution">
           <div class="widget HTML" data-version="2" id="HTML33">
             <div class="widget-content">
-              <span class="copyright-text widget">Design by - <a href="https://www.pikitemplates.com/"
+              <span class="copyright-text widget">Design by - <a href=""
                   id="pikitemplates" rel="dofollow">Blogger Templates</a></span>
             </div>
           </div>

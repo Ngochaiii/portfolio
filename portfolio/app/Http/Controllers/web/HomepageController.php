@@ -13,4 +13,9 @@ class HomepageController extends Controller
         ];
         return view('source.web.homepage.homepage',$compacts);
     }
+    public function detail() {
+        $compacts = [
+        ];
+        return view('source.web.homepage.detail',$compacts);
+    }
 }
