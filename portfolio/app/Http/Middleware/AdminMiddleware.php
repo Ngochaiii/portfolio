@@ -15,7 +15,7 @@ class AdminMiddleware
         }
 
         if (auth()->user()->role !== 'admin') {
-            return redirect()->route('home')->with('error', 'Bạn không có quyền truy cập trang này');
+            return redirect()->route('admin.dashboard')->with('error', 'Bạn không có quyền truy cập trang này');
         }
 
         return $next($request);
