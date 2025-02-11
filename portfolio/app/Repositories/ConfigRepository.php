@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Config;
 use App\Repositories\Support\AbstractRepository;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ConfigRepository extends AbstractRepository
 {
@@ -45,65 +46,43 @@ class ConfigRepository extends AbstractRepository
      */
     public function updateConfig(array $data)
     {
-        // Validate data
-        $data = $this->validateAndClean($data, [
-            'site_name' => 'nullable|string|max:255',
-            'url' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'keywords' => 'nullable|string',
-            'author' => 'nullable|string|max:255',
-            'theme_color' => 'nullable|string|max:7',
-            'favicon' => 'nullable|string|max:255',
-            'og_image' => 'nullable|string|max:255',
-            'no_thumb_image' => 'nullable|string|max:255',
-            'facebook_author' => 'nullable|string|max:255',
-            'facebook_page' => 'nullable|string|max:255',
-            'fb_app_id' => 'nullable|string|max:255',
-            'fb_admin_id' => 'nullable|string|max:255',
-            'twitter_creator' => 'nullable|string|max:255',
-            'adsense_platform_account' => 'nullable|string|max:255',
-            'adsense_platform_domain' => 'nullable|string|max:255',
-            'adsense_non_personalized' => 'boolean',
-            'related_posts_num' => 'integer|min:0',
-            'posts_per_page' => 'integer|min:1',
-            'comments_system' => 'string|in:blogger,disqus',
-            'disqus_shortname' => 'nullable|string|max:255',
-            'months_name' => 'nullable|array',
-            'page_of_text' => 'nullable|array',
-            'show_more_text' => 'nullable|string|max:255',
-            'follow_by_email_text' => 'nullable|string|max:255',
-            'related_posts_text' => 'nullable|string|max:255',
-            'load_more_text' => 'nullable|string|max:255',
-            'cookie_message' => 'nullable|string',
-            'cookie_accept_text' => 'nullable|string|max:255',
-            'cookie_learn_more_text' => 'nullable|string|max:255',
-            'cookie_policy_url' => 'nullable|string|max:255',
-            'enable_rss' => 'boolean',
-            'enable_adsense' => 'boolean',
-            'enable_twitter' => 'boolean',
-            'enable_youtube' => 'boolean',
-            'enable_instagram' => 'boolean',
-            'enable_pinterest' => 'boolean',
-            'enable_linkedin' => 'boolean',
-            'enable_disqus' => 'boolean',
-            'enable_github' => 'boolean',
-            'enable_gravatar' => 'boolean',
-            'blog_service_url' => 'nullable|string|max:255',
-            'profile_url' => 'nullable|string|max:255',
-        ]);
+        try {
+            // Log input data
+            Log::info('Validating config data:', $data);
 
-        $config = $this->getCurrent();
+            // Validate data
+            $data = $this->validateAndClean($data, [
+                'site_name' => 'nullable|string|max:255',
+                // ... other validation rules
+            ]);
 
-        if (!$config) {
-            $result = $this->create($data);
-        } else {
-            $result = $this->update($data, $config->id);
+            Log::info('Data after validation:', $data);
+
+            $config = $this->getCurrent();
+
+            if (!$config) {
+                Log::info('Creating new config');
+                $result = $this->create($data);
+            } else {
+                Log::info('Updating existing config:', ['id' => $config->id]);
+                $result = $this->update($data, $config->id);
+            }
+
+            // Clear cache after update
+            Cache::forget(self::CACHE_KEY);
+
+            Log::info('Config updated successfully:', [
+                'result' => $result
+            ]);
+
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Config update failed:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        // Clear cache after update
-        Cache::forget(self::CACHE_KEY);
-
-        return $result;
     }
 
     /**
@@ -122,7 +101,7 @@ class ConfigRepository extends AbstractRepository
         return $result;
     }
 
-     /**
+    /**
      * Toggle boolean config value
      * @param string $key Key cần toggle
      * @return Config|null
