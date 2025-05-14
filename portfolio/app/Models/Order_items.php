@@ -35,7 +35,7 @@ class Order_items extends Model
     // Relationship với Product
     public function product()
     {
-        return $this->belongsTo(Products::class);
+        return $this->belongsTo(Products::class, 'product_id'); // Thay 'product_id' bằng tên cột thực tế
     }
 
     // Relationship với Service (product đã bán)

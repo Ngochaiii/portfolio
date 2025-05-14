@@ -18,6 +18,12 @@ class Customers extends Model
         'status', // active, inactive
         'notes',
         'source', // Nguồn khách hàng: website, referral, etc.
+        'balance', // Số dư tài khoản
+        'wallet_id', // ID ví điện tử nếu cần
+    ];
+
+    protected $casts = [
+        'balance' => 'decimal:2',
     ];
 
     // Relationship với User
@@ -29,13 +35,13 @@ class Customers extends Model
     // Relationship với Order
     public function orders()
     {
-        return $this->hasMany(Orders::class);
+        return $this->hasMany(Orders::class, 'customer_id');
     }
 
     // Relationship với Invoice
     public function invoices()
     {
-        return $this->hasMany(Invoices::class);
+        return $this->hasMany(Invoices::class, 'customer_id', 'id');
     }
 
     // Relationship với Product (dịch vụ của khách hàng)
@@ -63,5 +69,24 @@ class Customers extends Model
     public function getAddressAttribute()
     {
         return $this->user->address;
+    }
+
+    // Phương thức cập nhật số dư
+    public function updateBalance($amount)
+    {
+        $this->balance += $amount;
+        return $this->save();
+    }
+
+    // Phương thức kiểm tra số dư
+    public function hasBalance($amount)
+    {
+        return $this->balance >= $amount;
+    }
+
+    // Hiển thị số dư đã định dạng
+    public function getFormattedBalanceAttribute()
+    {
+        return number_format($this->balance, 0, ',', '.') . ' đ';
     }
 }

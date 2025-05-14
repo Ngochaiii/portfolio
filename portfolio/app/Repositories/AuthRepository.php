@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Customers;
 use App\Repositories\Support\AbstractRepository;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -40,15 +41,37 @@ class AuthRepository extends AbstractRepository
         }
     }
 
+    // App\Repositories\AuthRepository.php
     public function register(array $data)
     {
         try {
-            $data['password'] = Hash::make($data['password']);
-            $user = $this->create($data);
+            // Tạo user
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'phone' => $data['phone'] ?? null,
+                'address' => $data['address'] ?? null,
+                'role' => 'user', // Mặc định là user thường
+                'is_active' => true,
+            ]);
+
+            // Tạo customer cho user
+            $customer = Customers::create([
+                'user_id' => $user->id,
+                'company_name' => $data['company_name'] ?? $data['name'],
+                'tax_code' => $data['tax_code'] ?? null,
+                'business_type' => $data['business_type'] ?? 'individual',
+                'industry' => $data['industry'] ?? null,
+                'website' => $data['website'] ?? null,
+                'status' => 'active',
+                'source' => 'website',
+            ]);
 
             return [
                 'success' => true,
-                'user' => $user
+                'user' => $user,
+                'customer' => $customer
             ];
         } catch (\Exception $e) {
             return [

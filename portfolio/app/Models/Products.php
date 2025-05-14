@@ -63,7 +63,7 @@ class Products extends Model
     // Relationship với OrderItem
     public function orderItems()
     {
-        return $this->hasMany(Order_items::class);
+        return $this->hasMany(Order_items::class, 'product_id'); // Thay 'product_id' bằng tên cột thực tế
     }
 
     // Relationship với InvoiceItem
@@ -88,7 +88,7 @@ class Products extends Model
     public function scopeForSale($query)
     {
         return $query->whereNull('customer_id')
-                    ->where('product_status', 'active');
+            ->where('product_status', 'active');
     }
 
     // Scope lấy dịch vụ đã bán

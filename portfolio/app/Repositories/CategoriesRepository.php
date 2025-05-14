@@ -35,10 +35,10 @@ class CategoriesRepository extends AbstractRepository
     public function getParentCategories()
     {
         return $this->model->whereNull('parent_id')
-                          ->orWhere('parent_id', 0)
-                          ->orderBy('sort_order', 'ASC')
-                          ->orderBy('name', 'ASC')
-                          ->get();
+            ->orWhere('parent_id', 0)
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('name', 'ASC')
+            ->get();
     }
 
     /**
@@ -49,9 +49,9 @@ class CategoriesRepository extends AbstractRepository
     public function getActive()
     {
         return $this->model->where('status', 'active')
-                          ->orderBy('sort_order', 'ASC')
-                          ->orderBy('name', 'ASC')
-                          ->get();
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('name', 'ASC')
+            ->get();
     }
 
     /**
@@ -62,10 +62,10 @@ class CategoriesRepository extends AbstractRepository
     public function getWithChildren()
     {
         return $this->model->with('children')
-                          ->whereNull('parent_id')
-                          ->orWhere('parent_id', 0)
-                          ->orderBy('sort_order', 'ASC')
-                          ->get();
+            ->whereNull('parent_id')
+            ->orWhere('parent_id', 0)
+            ->orderBy('sort_order', 'ASC')
+            ->get();
     }
 
     /**
@@ -167,5 +167,12 @@ class CategoriesRepository extends AbstractRepository
 
         // Update the category
         return $this->update($data, $id);
+    }
+    // Trong CategoriesRepository
+    public function getChildCategories($parentId)
+    {
+        return $this->model->where('parent_id', $parentId)
+            ->where('status', 'active')
+            ->get();
     }
 }

@@ -55,7 +55,7 @@ class User extends Authenticatable
     // Relationship với Customer
     public function customer()
     {
-        return $this->hasOne(Customers::class);
+        return $this->hasOne(Customers::class, 'user_id');
     }
 
     // Relationship với Order (đơn hàng tạo bởi người dùng)

@@ -9,150 +9,60 @@
                 </h2>
             </div>
         </div>
-        <div class="container ">
+        <div class="container">
             <div class="row">
-                <div class="col-md-6 col-lg-4">
-                    <div class="box ">
-                        <div class="img-box">
-                            <img src="images/s1.png" alt="">
-                        </div>
-                        <div class="detail-box">
-                            <h4>
-                                SSL Certificates
-                            </h4>
-                            <p>
-                                SSL certificates are digital credentials that authenticate website identity and enable
-                                encrypted
-                                connections between web servers and browsers
-                            </p>
-                            <a href="">
-                                Read More
-                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="box ">
-                        <div class="img-box">
-                            <img src="images/s2.png" alt="">
-                        </div>
-                        <div class="detail-box">
-                            <h4>
-                                Dedicated Hosting
-                            </h4>
-                            <p>
-                                Dedicated hosting provides an entire physical server exclusively for one client. This
-                                hosting type
-                                offers maximum performance, security
-                            </p>
-                            <a href="">
-                                Read More
-                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-
-                            </a>
+                @forelse($services as $service)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="box">
+                            <div class="img-box">
+                                {{-- @if ($service->image)
+                                    <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}">
+                                @else
+                                    <img src="{{ asset('images/s' . (($loop->index % 6) + 1) . '.png') }}"
+                                        alt="{{ $service->name }}">
+                                @endif --}}
+                            </div>
+                            <div class="detail-box">
+                                <h4>
+                                    {{ $service->name }}
+                                </h4>
+                                <p>
+                                    {{ $service->short_description ?? Str::limit(strip_tags($service->description), 150) }}
+                                </p>
+                                <a href="{{ route('service.detail', $service->slug) }}">
+                                    Read More
+                                    <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6 col-lg-4 ">
-                    <div class="box ">
-                        <div class="img-box">
-                            <img src="images/s3.png" alt="">
-                        </div>
-                        <div class="detail-box">
-                            <h4>
-                                Cloud Hosting
-                            </h4>
-                            <p>
-                                Cloud hosting utilizes a network of virtual servers drawing resources from an underlying
-                                network of
-                                physical servers. This model offers scalable resources
-                            </p>
-                            <a href="">
-                                Read More
-                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="box ">
-                        <div class="img-box">
-                            <img src="images/s4.png" alt="">
-                        </div>
-                        <div class="detail-box">
-                            <h4>
-                                VPS Hosting
-                            </h4>
-                            <p>
-                                VPS (Virtual Private Server) hosting provides a virtualized server environment that
-                                simulates a
-                                dedicated server within a shared hosting setup. Each VPS has dedicated resources including
-                                CPU, RAM, and
-                                storage,
-                            </p>
-                            <a href="">
-                                Read More
-                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-
-                            </a>
+                @empty
+                    <!-- Hiển thị dữ liệu mẫu nếu không có dịch vụ nào -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="box">
+                            <div class="img-box">
+                                <img src="{{ asset('images/s1.png') }}" alt="SSL Certificates">
+                            </div>
+                            <div class="detail-box">
+                                <h4>
+                                    SSL Certificates
+                                </h4>
+                                <p>
+                                    SSL certificates are digital credentials that authenticate website identity and enable
+                                    encrypted connections between web servers and browsers
+                                </p>
+                                <a href="#">
+                                    Read More
+                                    <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="box ">
-                        <div class="img-box">
-                            <img src="images/s5.png" alt="">
-                        </div>
-                        <div class="detail-box">
-                            <h4>
-                                Wordpress Hosting
-                            </h4>
-                            <p>
-                                WordPress hosting is specifically optimized for WordPress websites, offering pre-configured
-                                servers with
-                                the ideal environment for the WordPress CMS. This specialized hosting includes automatic
-                                WordPress
-                                updates
-                            </p>
-                            <a href="">
-                                Read More
-                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="box ">
-                        <div class="img-box">
-                            <img src="images/s6.png" alt="">
-                        </div>
-                        <div class="detail-box">
-                            <h4>
-                                Domain Name
-                            </h4>
-                            <p>
-                                A domain name is the unique web address that identifies a website on the internet, such as
-                                example.com.
-                                It serves as a human-readable alternative to numerical IP addresses,making websites easy to
-                                find and
-                                remember
-                            </p>
-                            <a href="">
-                                Read More
-                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Thêm các dịch vụ mẫu khác từ template gốc -->
+                @endforelse
             </div>
         </div>
     </section>
-
     <!-- end service section -->
 
     <!-- about section -->
@@ -214,7 +124,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="img-box">
-                        <img src="{{asset('assets/web/hostit/images/server-img.jpg')}}" alt="">
+                        <img src="{{ asset('assets/web/hostit/images/server-img.jpg') }}" alt="">
                         <div class="play_btn">
                             <button>
                                 <i class="fa fa-play" aria-hidden="true"></i>
@@ -263,209 +173,103 @@
                 </h2>
             </div>
             <div class="price_container">
-                <div class="box">
-                    <div class="detail-box">
-                        <h2>1.800.000 <span>Đ/year</span></h2>
-                        <h6>
-                            SSL Certificates
-                        </h6>
-                        <ul class="price_features">
-                            <li>
-                                Website Identity Verification
-                            </li>
-                            <li>
-                                Encrypted Data Transmission
-                            </li>
-                            <li>
-                                HTTPS Website Security
-                            </li>
-                            <li>
-                                Improved Search Rankings
-                            </li>
-                            <li>
-                                Builds Customer Trust
-                            </li>
-                            <li>
-                                Easy Installation Support
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-box">
-                        <a href="ssl.html">
-                            See Detail
-                        </a>
-                    </div>
-                </div>
+                @forelse($hostingSolutions as $solution)
+                    <div class="box">
+                        <div class="detail-box">
+                            @if ($solution->is_recurring && $solution->recurring_period)
+                                @if ($solution->sale_price)
+                                    <h2>{{ number_format($solution->sale_price, 0, ',', '.') }}
+                                        <span>Đ/{{ $solution->recurring_period == 12 ? 'year' : ($solution->recurring_period == 1 ? 'month' : $solution->recurring_period . ' months') }}</span>
+                                    </h2>
+                                @else
+                                    <h2>{{ number_format($solution->price, 0, ',', '.') }}
+                                        <span>Đ/{{ $solution->recurring_period == 12 ? 'year' : ($solution->recurring_period == 1 ? 'month' : $solution->recurring_period . ' months') }}</span>
+                                    </h2>
+                                @endif
+                            @else
+                                @if ($solution->sale_price)
+                                    <h2>{{ number_format($solution->sale_price, 0, ',', '.') }} <span>Đ</span></h2>
+                                @else
+                                    <h2>{{ number_format($solution->price, 0, ',', '.') }} <span>Đ</span></h2>
+                                @endif
+                            @endif
+                            <h6>
+                                {{ $solution->categoryObject->name ?? $solution->name }}
+                            </h6>
 
-                <div class="box">
-                    <div class="detail-box">
-                        <h2>2.250.000 <span>Đ/year</span></h2>
-                        <h6>
-                            Dedicated Hosting
-                        </h6>
-                        <ul class="price_features">
-                            <li>
-                                Exclusive Server Resources
-                            </li>
-                            <li>
-                                High Performance
-                            </li>
-                            <li>
-                                Full Root Access
-                            </li>
-                            <li>
-                                Custom Server Configuration
-                            </li>
-                            <li>
-                                Enhanced Security
-                            </li>
-                            <li>
-                                Premium Technical Support
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-box">
-                        <a href="dh.html">
-                            See Detail
-                        </a>
-                    </div>
-                </div>
+                            @php
+                                // Lấy các features từ description hoặc meta_data
+                                $features = [];
 
-                <div class="box">
-                    <div class="detail-box">
-                        <h2>129.000 <span>Đ/month</span></h2>
-                        <h6>
-                            Cloud Hosting
-                        </h6>
-                        <ul class="price_features">
-                            <li>
-                                Scalable Resources
-                            </li>
-                            <li>
-                                Pay-as-you-go Model
-                            </li>
-                            <li>
-                                High Reliability
-                            </li>
-                            <li>
-                                Distributed Architecture
-                            </li>
-                            <li>
-                                Auto Scaling Options
-                            </li>
-                            <li>
-                                Developer-friendly Tools
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-box">
-                        <a href="">
-                            See Detail
-                        </a>
-                    </div>
-                </div>
+                                // Kiểm tra nếu có meta_data và có features trong đó
+                                if ($solution->meta_data) {
+                                    $metaData = json_decode($solution->meta_data, true);
+                                    if (
+                                        is_array($metaData) &&
+                                        isset($metaData['features']) &&
+                                        is_array($metaData['features'])
+                                    ) {
+                                        $features = $metaData['features'];
+                                    }
+                                }
 
-                <div class="box">
-                    <div class="detail-box">
-                        <h2>129.000 <span>Đ/month</span></h2>
-                        <h6>
-                            VPS Hosting
-                        </h6>
-                        <ul class="price_features">
-                            <li>
-                                Dedicated Virtual Resources
-                            </li>
-                            <li>
-                                SSD Storage
-                            </li>
-                            <li>
-                                Root Access
-                            </li>
-                            <li>
-                                Choice of OS
-                            </li>
-                            <li>
-                                Resource Isolation
-                            </li>
-                            <li>
-                                Scalable Configuration
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-box">
-                        <a href="">
-                            See Detail
-                        </a>
-                    </div>
-                </div>
+                                // Nếu không có features, tìm trong description
+                                if (empty($features) && $solution->description) {
+                                    // Tìm các dòng bắt đầu bằng dấu "-" hoặc "*" trong description
+                                    preg_match_all(
+                                        '/[\-\*]\s*([^\n\r]+)/',
+                                        strip_tags($solution->description),
+                                        $matches,
+                                    );
+                                    if (!empty($matches[1])) {
+                                        $features = array_slice($matches[1], 0, 6); // Lấy tối đa 6 features
+                                    }
+                                }
 
-                <div class="box">
-                    <div class="detail-box">
-                        <h2>669.000 <span>Đ/month</span></h2>
-                        <h6>
-                            WordPress Hosting
-                        </h6>
-                        <ul class="price_features">
-                            <li>
-                                Pre-installed WordPress
-                            </li>
-                            <li>
-                                Auto WordPress Updates
-                            </li>
-                            <li>
-                                WordPress Optimized Servers
-                            </li>
-                            <li>
-                                Built-in Caching
-                            </li>
-                            <li>
-                                WordPress Security Features
-                            </li>
-                            <li>
-                                One-click Staging
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-box">
-                        <a href="">
-                            See Detail
-                        </a>
-                    </div>
-                </div>
+                                // Nếu vẫn không có, tạo features mẫu dựa vào nội dung mô tả ngắn
+                                if (empty($features) && $solution->short_description) {
+                                    $shortDesc = explode('.', $solution->short_description);
+                                    $features = array_filter(array_map('trim', $shortDesc));
+                                    $features = array_slice($features, 0, 6);
+                                }
 
-                <div class="box">
-                    <div class="detail-box">
-                        <h2>2.333.333 <span>Đ/year</span></h2>
-                        <h6>
-                            Domain Name
-                        </h6>
-                        <ul class="price_features">
-                            <li>
-                                Domain Registration
-                            </li>
-                            <li>
-                                Domain Transfer
-                            </li>
-                            <li>
-                                DNS Management
-                            </li>
-                            <li>
-                                Domain Privacy Protection
-                            </li>
-                            <li>
-                                Auto-renewal Option
-                            </li>
-                            <li>
-                                Email Forwarding
-                            </li>
-                        </ul>
+                                // Nếu vẫn không có, hiển thị 6 tính năng mẫu
+                                if (empty($features)) {
+                                    $features = [
+                                        'Feature 1',
+                                        'Feature 2',
+                                        'Feature 3',
+                                        'Feature 4',
+                                        'Feature 5',
+                                        'Feature 6',
+                                    ];
+                                }
+                            @endphp
+
+                            <ul class="price_features">
+                                @foreach ($features as $feature)
+                                    <li>
+                                        {{ $feature }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="btn-box">
+                            @if (isset($solution->categoryObject) && $solution->categoryObject)
+                                <a href="{{ route('category.detail', $solution->categoryObject->slug) }}">
+                                    See Detail
+                                </a>
+                            @else
+                                <a href="{{ route('service.detail', $solution->slug) }}">
+                                    See Detail
+                                </a>
+                            @endif
+                        </div>
                     </div>
-                    <div class="btn-box">
-                        <a href="domain.html">
-                            See Detail
-                        </a>
-                    </div>
-                </div>
+                @empty
+                    <!-- Hiển thị dữ liệu mẫu nếu không có sản phẩm nào -->
+                    <!-- ... dữ liệu mẫu ... -->
+                @endforelse
             </div>
         </div>
     </section>
@@ -493,7 +297,7 @@
                                 <div class="col-md-10 mx-auto">
                                     <div class="box">
                                         <div class="img-box">
-                                            <img src="{{asset('assets/web/hostit/images/client.jpg')}}" alt="">
+                                            <img src="{{ asset('assets/web/hostit/images/client.jpg') }}" alt="">
                                         </div>
                                         <div class="detail-box">
                                             <div class="client_info">
@@ -530,7 +334,7 @@
                                 <div class="col-md-10 mx-auto">
                                     <div class="box">
                                         <div class="img-box">
-                                            <img src="{{asset('assets/web/hostit/images/client.jpg')}}" alt="">
+                                            <img src="{{ asset('assets/web/hostit/images/client.jpg') }}" alt="">
                                         </div>
                                         <div class="detail-box">
                                             <div class="client_info">
@@ -563,7 +367,7 @@
                                 <div class="col-md-10 mx-auto">
                                     <div class="box">
                                         <div class="img-box">
-                                            <img src="{{asset('assets/web/hostit/images/client.jpg')}}" alt="">
+                                            <img src="{{ asset('assets/web/hostit/images/client.jpg') }}" alt="">
                                         </div>
                                         <div class="detail-box">
                                             <div class="client_info">

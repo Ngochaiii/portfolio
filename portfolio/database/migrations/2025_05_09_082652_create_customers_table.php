@@ -22,13 +22,17 @@ return new class extends Migration
             $table->string('status')->default('active');
             $table->text('notes')->nullable();
             $table->string('source')->nullable();
+
+            // Fields cho quản lý số dư
+            $table->decimal('balance', 15, 2)->default(0.00); // Số dư tài khoản
+            $table->string('wallet_id')->nullable(); // ID ví điện tử nếu cần
+
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')
                 ->onDelete('cascade');
         });
     }
-
     /**
      * Reverse the migrations.
      */
