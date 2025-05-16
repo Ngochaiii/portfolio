@@ -2,7 +2,9 @@
     <ul class="navbar-nav ml-auto">
         <li class="nav-item {{ request()->routeIs('homepage') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('homepage') }}">Home
-                @if(request()->routeIs('homepage'))<span class="sr-only">(current)</span>@endif
+                @if (request()->routeIs('homepage'))
+                    <span class="sr-only">(current)</span>
+                @endif
             </a>
         </li>
         <li class="nav-item {{ request()->routeIs('about.index') ? 'active' : '' }}">
@@ -22,42 +24,50 @@
         </li>
 
         @guest
-        <!-- Hiển thị khi chưa đăng nhập -->
-        <li class="nav-item {{ request()->routeIs('login') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('login') }}">
-                <i class="fa fa-sign-in" aria-hidden="true"></i> Login
-            </a>
-        </li>
-        <li class="nav-item {{ request()->routeIs('register') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('register') }}">
-                <i class="fa fa-user-plus" aria-hidden="true"></i> Register
-            </a>
-        </li>
+            <!-- Hiển thị khi chưa đăng nhập -->
+            <li class="nav-item {{ request()->routeIs('login') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('login') }}">
+                    <i class="fa fa-sign-in" aria-hidden="true"></i> Login
+                </a>
+            </li>
+            <li class="nav-item {{ request()->routeIs('register') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('register') }}">
+                    <i class="fa fa-user-plus" aria-hidden="true"></i> Register
+                </a>
+            </li>
         @else
-        <!-- Hiển thị khi đã đăng nhập -->
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fa fa-user" aria-hidden="true"></i> {{ Auth::user()->name }}
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{{ route('customer.profile') }}">
-                    <i class="fa fa-user-circle" aria-hidden="true"></i> My Profile
+            <!-- Hiển thị khi đã đăng nhập -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-user" aria-hidden="true"></i> {{ Auth::user()->name }}
                 </a>
-                @if(Auth::user()->role == 'admin' || Auth::user()->role == 'super_admin')
-                <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                    <i class="fa fa-dashboard" aria-hidden="true"></i> Admin Dashboard
-                </a>
-                @endif
-                <div class="dropdown-divider"></div>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="dropdown-item text-danger">
-                        <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
-                    </button>
-                </form>
-            </div>
-        </li>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{{ route('customer.profile') }}">
+                        <i class="fa fa-user-circle" aria-hidden="true"></i> My Profile
+                    </a>
+                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'super_admin')
+                        <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                            <i class="fa fa-dashboard" aria-hidden="true"></i> Admin Dashboard
+                        </a>
+                    @endif
+                    <div class="dropdown-divider"></div>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </li>
         @endguest
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('cart.index') }}">
+                <i class="fa fa-shopping-cart"></i> Giỏ hàng
+                @if (session('cart_count') && session('cart_count') > 0)
+                    <span class="badge badge-pill badge-primary">{{ session('cart_count') }}</span>
+                @endif
+            </a>
+        </li>
     </ul>
 </div>

@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User; // Đảm bảo import User model
+use App\Models\User;
 
 class FrontendAuth
 {
@@ -21,8 +20,20 @@ class FrontendAuth
     {
         // Kiểm tra đăng nhập
         if (!Auth::check()) {
-            // Lưu URL hiện tại để redirect sau khi đăng nhập
-            session()->put('url.intended', url()->current());
+            // Chỉ lưu URL hiện tại nếu nó là GET method
+            if ($request->isMethod('get')) {
+                session()->put('url.intended', url()->current());
+            } else {
+                // Nếu là POST, lưu URL trang sản phẩm hoặc trang chủ thay thế
+                // Bạn có thể điều chỉnh route này tùy theo ứng dụng của bạn
+                session()->put('url.intended', route('homepage'));
+
+                // Hoặc lưu tham số referer nếu có
+                if ($request->headers->has('referer')) {
+                    session()->put('url.intended', $request->headers->get('referer'));
+                }
+            }
+
             return redirect()->route('login')->with('message', 'Vui lòng đăng nhập để tiếp tục.');
         }
 

@@ -4,18 +4,22 @@
     <div class="container py-5">
         <div class="row">
             <div class="col-md-4">
+                <!-- Trong file profile.blade.php -->
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Tài khoản của tôi</h5>
                         <div class="list-group">
-                            <a href="{{ route('customer.profile') }}" class="list-group-item list-group-item-action active">
+                            <a href="{{ route('customer.profile') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
                                 Thông tin cá nhân
                             </a>
-                            <a href="#" class="list-group-item list-group-item-action">
+                            <a href="{{ route('customer.orders') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
                                 Lịch sử đơn hàng
                             </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                Hóa đơn
+                            <a href="{{ route('customer.invoices') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.invoices') ? 'active' : '' }}">
+                                Hóa đơn chưa thanh toán
                             </a>
                             <form action="{{ route('logout') }}" method="POST" class="d-none" id="logout-form">
                                 @csrf
@@ -43,7 +47,7 @@
                             </div>
                         </div>
                         <div class="d-grid">
-                            <a href="{{route('deposit')}}" class="btn btn-success btn-sm">
+                            <a href="{{ route('deposit') }}" class="btn btn-success btn-sm">
                                 <i class="fa fa-plus-circle"></i> Nạp tiền
                             </a>
                         </div>

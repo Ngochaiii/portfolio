@@ -4,10 +4,13 @@ use App\Http\Controllers\web\HomepageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\web\AboutController;
+use App\Http\Controllers\web\CartController;
 use App\Http\Controllers\web\ContactController;
 use App\Http\Controllers\web\CustomerController;
 use App\Http\Controllers\web\InvoiceController;
+use App\Http\Controllers\web\OrderController;
 use App\Http\Controllers\web\PricingController;
+use App\Http\Controllers\web\QuoteController;
 use App\Http\Controllers\web\ServiceController;
 use App\Http\Controllers\web\WalletController;
 
@@ -46,12 +49,9 @@ Route::group(['prefix' => 'services'], function () {
 Route::group(['prefix' => 'price'], function () {
     Route::get('/', [PricingController::class, 'index'])->name('pricing.index');
 });
-Route::group(['prefix' => 'invoice'], function () {
-    Route::get('/', [InvoiceController::class, 'index'])->name('invoice.index');
-});
 
 Route::group(['prefix' => 'category'], function () {
-   Route::get('/{categorySlug}', [HomepageController::class, 'category'])->name('category.detail');
+    Route::get('/{categorySlug}', [HomepageController::class, 'category'])->name('category.detail');
 });
 
 // Frontend Routes (yêu cầu đăng nhập)
@@ -62,22 +62,53 @@ Route::group([
     Route::group(['prefix' => 'customer'], function () {
         Route::get('/profile', [CustomerController::class, 'showProfile'])->name('customer.profile');
         Route::put('/profile/update', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
+        // Thêm các routes mới
+        Route::get('/invoices', [CustomerController::class, 'showInvoices'])->name('customer.invoices');
+        Route::get('/orders', [CustomerController::class, 'showOrders'])->name('customer.orders');
     });
 
-    // Checkout Routes
-    Route::group(['prefix' => 'checkout', 'as' => 'checkout.'], function () {
-        Route::get('/', [CheckoutController::class, 'index'])->name('index');
-        Route::post('/process', [CheckoutController::class, 'process'])->name('process');
-        Route::get('/success/{order}', [CheckoutController::class, 'success'])->name('success');
+    // routes/web.php
+
+    // Wallet routes (yêu cầu đăng nhập)
+    Route::group(['prefix' => 'wallet'], function () {
+        Route::get('/deposit', [WalletController::class, 'deposit'])->name('deposit');
+        Route::post('/deposit/process', [WalletController::class, 'processDeposit'])->name('deposit.process');
+        Route::get('/deposit/success/{code}', [WalletController::class, 'depositSuccess'])->name('deposit.success');
     });
 
-// routes/web.php
+    // routes/web.php
 
-// Wallet routes (yêu cầu đăng nhập)
-Route::group([ 'prefix' => 'wallet'], function () {
-    Route::get('/deposit', [WalletController::class, 'deposit'])->name('deposit');
-    Route::post('/deposit/process', [WalletController::class, 'processDeposit'])->name('deposit.process');
-    Route::get('/deposit/success/{code}', [WalletController::class, 'depositSuccess'])->name('deposit.success');
-});
-});
+    // Các routes liên quan đến giỏ hàng
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/add', [CartController::class, 'addToCart'])->name('cart.add');
+        Route::post('/update/{itemId}', [CartController::class, 'updateItem'])->name('cart.update');
+        Route::post('/remove/{itemId}', [CartController::class, 'removeItem'])->name('cart.remove');
+        Route::post('/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    });
 
+    // invoices
+    Route::group(['prefix' => 'invoice'], function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('invoice.index');
+    });
+
+    // Báo giá và thanh toán
+    Route::group(['prefix' => 'quote'], function () {
+        // Hiển thị trang báo giá
+        Route::get('/', [InvoiceController::class, 'showQuote'])->name('quote');
+
+        // Thêm các routes cho báo giá
+        Route::get('/download', [QuoteController::class, 'downloadPdf'])->name('quote.download');
+        Route::get('/email', [QuoteController::class, 'sendEmail'])->name('quote.email'); // Đổi từ POST sang GET
+        Route::post('/email', [QuoteController::class, 'sendEmail'])->name('quote.email.post'); // Giữ route POST để tương thích ngược
+
+        // Tiếp tục đến trang thanh toán
+        Route::post('/proceed-to-payment', [InvoiceController::class, 'proceedToPayment'])->name('proceed.payment');
+         // Order routes - đã có nhưng cần di chuyển ra khỏi prefix quote
+
+    Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
+
+    // Invoice download route - đã có nhưng cần di chuyển ra khỏi prefix quote
+    Route::get('/invoice/{id}/download', [InvoiceController::class, 'downloadPdf'])->name('invoice.download');
+    });
+});

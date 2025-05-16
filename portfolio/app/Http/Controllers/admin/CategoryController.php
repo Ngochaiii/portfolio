@@ -74,7 +74,7 @@ class CategoryController extends Controller
 
         try {
             $category = $this->categoryRepository->validateAndCreate($data);
-            return redirect()->route('source.admin.categories.index')
+            return redirect()->route('admin.categories.index')
                 ->with('success', 'Danh mục đã được tạo thành công!');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -146,7 +146,7 @@ class CategoryController extends Controller
 
         try {
             $category = $this->categoryRepository->validateAndUpdate($data, $id);
-            return redirect()->route('source.admin.categories.index')
+            return redirect()->route('admin.categories.index')
                 ->with('success', 'Danh mục đã được cập nhật thành công!');
         } catch (\Exception $e) {
             return redirect()->back()

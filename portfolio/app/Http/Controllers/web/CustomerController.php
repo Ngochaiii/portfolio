@@ -4,6 +4,8 @@ namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customers;
+use App\Models\Orders;
+use App\Models\Invoices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,6 +21,7 @@ class CustomerController extends Controller
 
     public function updateProfile(Request $request)
     {
+        // Code hiện tại của bạn giữ nguyên
         $user = Auth::user();
 
         $validated = $request->validate([
@@ -63,7 +66,51 @@ class CustomerController extends Controller
             return redirect($intended)->with('success', 'Thông tin đã được cập nhật thành công!');
         }
 
-        // Chuyển hướng đến trang chủ
-        return redirect()->route('homepage')->with('success', 'Thông tin đã được cập nhật thành công!');
+        // Chuyển hướng về trang profile
+        return redirect()->route('customer.profile')->with('success', 'Thông tin đã được cập nhật thành công!');
+    }
+
+    /**
+     * Hiển thị danh sách hóa đơn chưa thanh toán
+     */
+    public function showInvoices()
+    {
+        $user = Auth::user();
+        $customer = $user->customer;
+
+        if (!$customer) {
+            return redirect()->route('customer.profile')->with('error', 'Vui lòng cập nhật thông tin khách hàng trước.');
+        }
+
+        // Lấy các hóa đơn chưa thanh toán
+        $invoices = Invoices::whereHas('order', function ($query) use ($customer) {
+            $query->where('customer_id', $customer->id)
+                  ->where('status', 'pending'); // Hóa đơn của đơn hàng đang chờ thanh toán
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
+        return view('source.web.profile.invoices', compact('user', 'customer', 'invoices'));
+    }
+
+    /**
+     * Hiển thị lịch sử đơn hàng đã thanh toán
+     */
+    public function showOrders()
+    {
+        $user = Auth::user();
+        $customer = $user->customer;
+
+        if (!$customer) {
+            return redirect()->route('customer.profile')->with('error', 'Vui lòng cập nhật thông tin khách hàng trước.');
+        }
+
+        // Lấy các đơn hàng đã hoàn thành hoặc đang xử lý
+        $orders = Orders::where('customer_id', $customer->id)
+            ->whereIn('status', ['completed', 'processing']) // Đơn hàng đã xử lý hoặc hoàn thành
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('source.web.profile.orders', compact('user', 'customer', 'orders'));
     }
 }
