@@ -6,6 +6,7 @@ use App\Http\Controllers\admin\CustomerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepositController;
+use App\Http\Controllers\admin\PaymentController;
 use App\Http\Controllers\Admin\ProductsController;
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -39,7 +40,7 @@ Route::group([
         Route::post('/toggle-status/{id}', [ProductsController::class, 'toggleStatus'])->name('admin.products.toggleStatus');
         Route::get('/{id}', [ProductsController::class, 'show'])->name('admin.products.show');
     });
-     // Quản lý khách hàng
+    // Quản lý khách hàng
     Route::group(['prefix' => 'customers'], function () {
         Route::get('/', [CustomerController::class, 'index'])->name('admin.customers.index');
         Route::get('/create', [CustomerController::class, 'create'])->name('admin.customers.create');
@@ -63,5 +64,12 @@ Route::group([
         Route::get('/{id}', [DepositController::class, 'show'])->name('deposits.show');
         Route::post('/{id}/approve', [DepositController::class, 'approve'])->name('deposits.approve');
         Route::post('/{id}/reject', [DepositController::class, 'reject'])->name('deposits.reject');
+    });
+
+    // Payment management routes
+    Route::group(['prefix' => 'payments'], function () {
+        Route::get('/', [PaymentController::class, 'index'])->name('admin.payments.index');
+        Route::post('/{id}/approve', [PaymentController::class, 'approve'])->name('admin.payments.approve');
+        Route::post('/{id}/reject', [PaymentController::class, 'reject'])->name('admin.payments.reject');
     });
 });

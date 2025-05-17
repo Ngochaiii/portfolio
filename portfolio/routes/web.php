@@ -99,8 +99,8 @@ Route::group([
 
         // Thêm các routes cho báo giá
         Route::get('/download', [QuoteController::class, 'downloadPdf'])->name('quote.download');
-        Route::get('/email', [QuoteController::class, 'sendEmail'])->name('quote.email'); // Đổi từ POST sang GET
-        Route::post('/email', [QuoteController::class, 'sendEmail'])->name('quote.email.post'); // Giữ route POST để tương thích ngược
+        Route::get('/email', [QuoteController::class, 'sendEmail'])->name('quote.email');
+        Route::post('/email', [QuoteController::class, 'sendEmail'])->name('quote.email.post');
 
         // Tiếp tục đến trang thanh toán
         Route::post('/proceed-to-payment', [InvoiceController::class, 'proceedToPayment'])->name('proceed.payment');
@@ -110,5 +110,8 @@ Route::group([
 
     // Invoice download route - đã có nhưng cần di chuyển ra khỏi prefix quote
     Route::get('/invoice/{id}/download', [InvoiceController::class, 'downloadPdf'])->name('invoice.download');
+     // Payment routes
+    Route::get('/invoice/{id}/payment', [InvoiceController::class, 'proceedToPayment'])->name('proceed.payment');
+    Route::get('/payment/process', [InvoiceController::class, 'proceedToPayment'])->name('process.payment');
     });
 });

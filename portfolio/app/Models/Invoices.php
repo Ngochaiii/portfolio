@@ -28,10 +28,10 @@ class Invoices extends Model
         return $this->belongsTo(Customers::class, 'customer_id', 'id');
     }
 
-    // Relationship với Order
+    // Trong model Invoices.php
     public function order()
     {
-        return $this->belongsTo(Orders::class);
+        return $this->belongsTo(Orders::class, 'order_id', 'id');
     }
 
     // Relationship với User (người tạo)

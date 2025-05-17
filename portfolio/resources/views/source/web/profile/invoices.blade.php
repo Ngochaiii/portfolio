@@ -8,13 +8,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Tài khoản của tôi</h5>
                         <div class="list-group">
-                            <a href="{{ route('customer.profile') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
+                            <a href="{{ route('customer.profile') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
                                 Thông tin cá nhân
                             </a>
-                            <a href="{{ route('customer.orders') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
+                            <a href="{{ route('customer.orders') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
                                 Lịch sử đơn hàng
                             </a>
-                            <a href="{{ route('customer.invoices') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.invoices') ? 'active' : '' }}">
+                            <a href="{{ route('customer.invoices') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.invoices') ? 'active' : '' }}">
                                 Hóa đơn chưa thanh toán
                             </a>
                             <form action="{{ route('logout') }}" method="POST" class="d-none" id="logout-form">
@@ -43,7 +46,7 @@
                             </div>
                         </div>
                         <div class="d-grid">
-                            <a href="{{route('deposit')}}" class="btn btn-success btn-sm">
+                            <a href="{{ route('deposit') }}" class="btn btn-success btn-sm">
                                 <i class="fa fa-plus-circle"></i> Nạp tiền
                             </a>
                         </div>
@@ -97,20 +100,29 @@
                                             <tr>
                                                 <td>{{ $invoice->invoice_number }}</td>
                                                 <td>{{ $invoice->created_at->format('d/m/Y') }}</td>
-                                                <td>{{ $invoice->due_date ? $invoice->due_date->format('d/m/Y') : 'N/A' }}</td>
+                                                <td>
+                                                    @if ($invoice->due_date)
+                                                        {{ is_string($invoice->due_date) ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : $invoice->due_date->format('d/m/Y') }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
                                                 <td>{{ number_format($invoice->total_amount, 0, ',', '.') }} đ</td>
                                                 <td>
                                                     <span class="badge bg-warning text-dark">Chưa thanh toán</span>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="{{ route('order.show', $invoice->order_id) }}" class="btn btn-info">
+                                                        <a href="{{ route('order.show', $invoice->order_id) }}"
+                                                            class="btn btn-info">
                                                             <i class="fa fa-eye"></i> Xem
                                                         </a>
-                                                        <a href="{{ route('invoice.download', $invoice->id) }}" class="btn btn-secondary">
+                                                        <a href="{{ route('invoice.download', $invoice->id) }}"
+                                                            class="btn btn-secondary">
                                                             <i class="fa fa-download"></i> PDF
                                                         </a>
-                                                        <a href="{{ route('proceed.payment', $invoice->order_id) }}" class="btn btn-success">
+                                                        <a href="{{ route('proceed.payment', $invoice->order_id) }}"
+                                                            class="btn btn-success">
                                                             <i class="fa fa-credit-card"></i> Thanh toán
                                                         </a>
                                                     </div>

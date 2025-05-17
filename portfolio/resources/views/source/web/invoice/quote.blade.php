@@ -216,7 +216,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <a href="{{ route('proceed.payment') }}" class="btn btn-success btn-block">
+                    <a href="{{ route('process.payment') }}" class="btn btn-success btn-block">
                         <i class="fa fa-credit-card mr-2"></i> Tiếp tục thanh toán
                     </a>
                 </div>

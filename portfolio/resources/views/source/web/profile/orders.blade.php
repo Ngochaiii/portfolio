@@ -9,13 +9,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Tài khoản của tôi</h5>
                         <div class="list-group">
-                            <a href="{{ route('customer.profile') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
+                            <a href="{{ route('customer.profile') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
                                 Thông tin cá nhân
                             </a>
-                            <a href="{{ route('customer.orders') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
+                            <a href="{{ route('customer.orders') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
                                 Lịch sử đơn hàng
                             </a>
-                            <a href="{{ route('customer.invoices') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.invoices') ? 'active' : '' }}">
+                            <a href="{{ route('customer.invoices') }}"
+                                class="list-group-item list-group-item-action {{ request()->routeIs('customer.invoices') ? 'active' : '' }}">
                                 Hóa đơn chưa thanh toán
                             </a>
                             <form action="{{ route('logout') }}" method="POST" class="d-none" id="logout-form">
@@ -44,7 +47,7 @@
                             </div>
                         </div>
                         <div class="d-grid">
-                            <a href="{{route('deposit')}}" class="btn btn-success btn-sm">
+                            <a href="{{ route('deposit') }}" class="btn btn-success btn-sm">
                                 <i class="fa fa-plus-circle"></i> Nạp tiền
                             </a>
                         </div>
@@ -99,21 +102,26 @@
                                                 <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                                 <td>{{ number_format($order->total_amount, 0, ',', '.') }} đ</td>
                                                 <td>
-                                                    @if($order->status == 'completed')
-                                                        <span class="badge bg-success">Hoàn thành</span>
+                                                    @if ($order->status == 'completed')
+                                                        <span class="badge bg-success">Đã hoàn thành</span>
                                                     @elseif($order->status == 'processing')
                                                         <span class="badge bg-primary">Đang xử lý</span>
+                                                    @elseif($order->status == 'pending')
+                                                        <span class="badge bg-warning">Chờ thanh toán</span>
                                                     @else
-                                                        <span class="badge bg-secondary">{{ ucfirst($order->status) }}</span>
+                                                        <span
+                                                            class="badge bg-secondary">{{ ucfirst($order->status) }}</span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="{{ route('order.show', $order->id) }}" class="btn btn-info">
+                                                        <a href="{{ route('order.show', $order->id) }}"
+                                                            class="btn btn-info">
                                                             <i class="fa fa-eye"></i> Chi tiết
                                                         </a>
-                                                        @if($order->invoice)
-                                                            <a href="{{ route('invoice.download', $order->invoice->id) }}" class="btn btn-secondary">
+                                                        @if ($order->invoice)
+                                                            <a href="{{ route('invoice.download', $order->invoice->id) }}"
+                                                                class="btn btn-secondary">
                                                                 <i class="fa fa-download"></i> Hóa đơn
                                                             </a>
                                                         @endif

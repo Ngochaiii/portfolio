@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Orders extends Model
 {
     use HasFactory;
-     protected $fillable = [
+    protected $fillable = [
         'order_number',
         'customer_id',
         'status', // pending, processing, completed, cancelled
@@ -35,13 +35,12 @@ class Orders extends Model
     // Relationship với OrderItem
     public function items()
     {
-        return $this->hasMany(Invoice_items::class);
+        return $this->hasMany(Order_items::class);
     }
 
-    // Relationship với Invoice
     public function invoice()
     {
-        return $this->hasOne(Invoices::class);
+        return $this->hasOne(Invoices::class, 'order_id');
     }
 
     // Relationship với Payment
