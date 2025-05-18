@@ -36,9 +36,9 @@ class ProductsRepository extends AbstractRepository
     public function getVariants($parent_id)
     {
         return $this->model->where('parent_product_id', $parent_id)
-                          ->orderBy('sort_order', 'ASC')
-                          ->orderBy('name', 'ASC')
-                          ->get();
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('name', 'ASC')
+            ->get();
     }
 
     /**
@@ -49,10 +49,10 @@ class ProductsRepository extends AbstractRepository
     public function getActive()
     {
         return $this->model->where('product_status', 'active')
-                          ->whereNull('customer_id')
-                          ->orderBy('sort_order', 'ASC')
-                          ->orderBy('name', 'ASC')
-                          ->get();
+            ->whereNull('customer_id')
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('name', 'ASC')
+            ->get();
     }
 
     /**
@@ -75,11 +75,11 @@ class ProductsRepository extends AbstractRepository
     public function getFeatured($limit = 10)
     {
         return $this->model->where('product_status', 'active')
-                          ->where('is_featured', 1)
-                          ->whereNull('customer_id')
-                          ->orderBy('sort_order', 'ASC')
-                          ->limit($limit)
-                          ->get();
+            ->where('is_featured', 1)
+            ->whereNull('customer_id')
+            ->orderBy('sort_order', 'ASC')
+            ->limit($limit)
+            ->get();
     }
 
     /**
@@ -92,9 +92,9 @@ class ProductsRepository extends AbstractRepository
     public function getByType($type, $limit = null)
     {
         $query = $this->model->where('type', $type)
-                         ->where('product_status', 'active')
-                         ->whereNull('customer_id')
-                         ->orderBy('sort_order', 'ASC');
+            ->where('product_status', 'active')
+            ->whereNull('customer_id')
+            ->orderBy('sort_order', 'ASC');
 
         if ($limit) {
             $query->limit($limit);
@@ -113,9 +113,9 @@ class ProductsRepository extends AbstractRepository
     public function getByCategory($category_id, $limit = null)
     {
         $query = $this->model->where('category_id', $category_id)
-                           ->where('product_status', 'active')
-                           ->whereNull('customer_id')
-                           ->orderBy('sort_order', 'ASC');
+            ->where('product_status', 'active')
+            ->whereNull('customer_id')
+            ->orderBy('sort_order', 'ASC');
 
         if ($limit) {
             $query->limit($limit);
@@ -159,7 +159,7 @@ class ProductsRepository extends AbstractRepository
             'name' => 'required|max:255',
             'slug' => 'nullable|max:255|unique:products,slug',
             'category_id' => 'nullable|exists:categories,id',
-            'description' => 'nullable|string',
+            'description' => 'nullable', // Bỏ |string để chấp nhận HTML từ CKEditor
             'short_description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
@@ -169,6 +169,8 @@ class ProductsRepository extends AbstractRepository
             'stock' => 'nullable|integer',
             'is_featured' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
+            'meta_data' => 'nullable', // Bỏ quy tắc xác thực JSON
+            'options' => 'nullable', // Bỏ quy tắc xác thực JSON
         ];
 
         // Xác thực và làm sạch dữ liệu
@@ -191,7 +193,7 @@ class ProductsRepository extends AbstractRepository
             $data['stock'] = -1; // Không giới hạn
         }
 
-        // Xử lý dữ liệu JSON
+        // Xử lý dữ liệu JSON - vẫn chuyển đổi array thành JSON nếu là array
         if (isset($data['meta_data']) && is_array($data['meta_data'])) {
             $data['meta_data'] = json_encode($data['meta_data']);
         }
@@ -249,16 +251,16 @@ class ProductsRepository extends AbstractRepository
     public function getPossibleParents()
     {
         return $this->model->whereNull('parent_product_id')
-                          ->whereNull('customer_id')
-                          ->orderBy('name', 'ASC')
-                          ->get();
+            ->whereNull('customer_id')
+            ->orderBy('name', 'ASC')
+            ->get();
     }
     public function getPossibleParentsExcept($excludeId)
     {
         return $this->model->whereNull('parent_product_id')
-                          ->where('id', '!=', $excludeId)
-                          ->whereNull('customer_id')
-                          ->orderBy('name', 'ASC')
-                          ->get();
+            ->where('id', '!=', $excludeId)
+            ->whereNull('customer_id')
+            ->orderBy('name', 'ASC')
+            ->get();
     }
 }

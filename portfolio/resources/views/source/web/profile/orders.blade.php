@@ -1,5 +1,5 @@
 <!-- File: resources/views/source/web/profile/orders.blade.php -->
-@extends('layouts.web.index')
+@extends('layouts.web.default')
 
 @section('content')
     <div class="container py-5">
@@ -115,15 +115,45 @@
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="{{ route('order.show', $order->id) }}"
-                                                            class="btn btn-info">
-                                                            <i class="fa fa-eye"></i> Chi tiết
-                                                        </a>
-                                                        @if ($order->invoice)
-                                                            <a href="{{ route('invoice.download', $order->invoice->id) }}"
-                                                                class="btn btn-secondary">
-                                                                <i class="fa fa-download"></i> Hóa đơn
+                                                        @if ($order->status == 'completed' && $order->total_amount >= 9000000)
+                                                            @php
+                                                                $cashback = App\Models\Cashbacks::where(
+                                                                    'order_id',
+                                                                    $order->id,
+                                                                )->first();
+                                                            @endphp
+
+                                                            @if (!$cashback)
+                                                                <!-- Chưa có yêu cầu hoàn tiền -->
+                                                                <a href="#" class="btn btn-success register-cashback"
+                                                                    data-order-id="{{ $order->id }}"
+                                                                    data-order-number="{{ $order->order_number }}"
+                                                                    data-order-total="{{ $order->total_amount }}"
+                                                                    data-cashback-amount="{{ $order->total_amount * 0.12 }}">
+                                                                    <i class="fa fa-money"></i> Đăng ký hoàn tiền 12%
+                                                                </a>
+                                                            @else
+                                                                <!-- Đã có yêu cầu hoàn tiền -->
+                                                                <a href="#"
+                                                                    class="btn btn-primary view-cashback-status"
+                                                                    data-cashback-id="{{ $cashback->id }}"
+                                                                    data-order-number="{{ $order->order_number }}">
+                                                                    <i class="fa fa-info-circle"></i> Xem trạng thái hoàn
+                                                                    tiền
+                                                                </a>
+                                                            @endif
+                                                        @else
+                                                            <!-- Hiển thị các nút mặc định cho đơn hàng không đủ điều kiện -->
+                                                            <a href="{{ route('homepage') }}"
+                                                                class="btn btn-info">
+                                                                <i class="fa fa-eye"></i> Tiếp tục mua hàng
                                                             </a>
+                                                            {{-- @if ($order->invoice)
+                                                                <a href="{{ route('invoice.download', $order->invoice->id) }}"
+                                                                    class="btn btn-secondary">
+                                                                    <i class="fa fa-download"></i> Hóa đơn
+                                                                </a>
+                                                            @endif --}}
                                                         @endif
                                                     </div>
                                                 </td>
@@ -142,7 +172,144 @@
             </div>
         </div>
     </div>
+    <!-- Modal Đăng ký Hoàn tiền -->
+    <div class="modal fade" id="registerCashbackModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đăng ký nhận hoàn tiền</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="cashbackForm" method="POST" action="{{ route('cashback.register') }}">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="order_id" id="cashbackOrderId">
 
+                        <div class="mb-3">
+                            <p><strong>Đơn hàng:</strong> <span id="cashbackOrderNumber"></span></p>
+                            <p><strong>Tổng đơn hàng:</strong> <span id="cashbackOrderTotal"></span></p>
+                            <p><strong>Số tiền hoàn (12%):</strong> <span id="cashbackAmount"></span></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bank_name" class="form-label">Tên ngân hàng</label>
+                            <select class="form-select" id="bank_name" name="bank_name" required>
+                                <option value="">-- Chọn ngân hàng --</option>
+                                <option value="Vietcombank">Vietcombank</option>
+                                <option value="BIDV">BIDV</option>
+                                <option value="Vietinbank">Vietinbank</option>
+                                <option value="Agribank">Agribank</option>
+                                <option value="Techcombank">Techcombank</option>
+                                <option value="MBBank">MBBank</option>
+                                <!-- Thêm các ngân hàng khác -->
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="account_number" class="form-label">Số tài khoản</label>
+                            <input type="text" class="form-control" id="account_number" name="account_number"
+                                required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="account_holder" class="form-label">Tên chủ tài khoản</label>
+                            <input type="text" class="form-control" id="account_holder" name="account_holder"
+                                required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="branch" class="form-label">Chi nhánh (không bắt buộc)</label>
+                            <input type="text" class="form-control" id="branch" name="branch">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem trạng thái hoàn tiền -->
+    <div class="modal fade" id="cashbackStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trạng thái hoàn tiền</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="cashbackStatusContent">
+                    <!-- Nội dung sẽ được tải bằng Ajax -->
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@endsection
+@push('footer_js')
+    <!-- Script xử lý modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý khi nhấn nút đăng ký hoàn tiền
+            const registerBtns = document.querySelectorAll('.register-cashback');
+            registerBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const orderId = this.getAttribute('data-order-id');
+                    const orderNumber = this.getAttribute('data-order-number');
+                    const orderTotal = this.getAttribute('data-order-total');
+                    const cashbackAmount = this.getAttribute('data-cashback-amount');
+
+                    document.getElementById('cashbackOrderId').value = orderId;
+                    document.getElementById('cashbackOrderNumber').textContent = '#' + orderNumber;
+                    document.getElementById('cashbackOrderTotal').textContent = new Intl
+                        .NumberFormat('vi-VN').format(orderTotal) + ' đ';
+                    document.getElementById('cashbackAmount').textContent = new Intl.NumberFormat(
+                        'vi-VN').format(cashbackAmount) + ' đ';
+
+                    const modal = new bootstrap.Modal(document.getElementById(
+                        'registerCashbackModal'));
+                    modal.show();
+                });
+            });
+
+            // Xử lý khi nhấn nút xem trạng thái hoàn tiền
+            const statusBtns = document.querySelectorAll('.view-cashback-status');
+            statusBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const cashbackId = this.getAttribute('data-cashback-id');
+
+                    // Hiển thị modal
+                    const modal = new bootstrap.Modal(document.getElementById(
+                        'cashbackStatusModal'));
+                    modal.show();
+
+                    // Tải nội dung trạng thái bằng Ajax
+                    fetch('{{ route('cashback.status') }}?id=' + cashbackId)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('cashbackStatusContent').innerHTML = html;
+                        })
+                        .catch(error => {
+                            document.getElementById('cashbackStatusContent').innerHTML =
+                                '<div class="alert alert-danger">Lỗi khi tải thông tin. Vui lòng thử lại.</div>';
+                        });
+                });
+            });
+        });
+    </script>
     <!-- Script cho tính năng ẩn hiện số dư -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -187,4 +354,4 @@
             });
         });
     </script>
-@endsection
+@endpush

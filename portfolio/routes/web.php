@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\web\AboutController;
 use App\Http\Controllers\web\CartController;
+use App\Http\Controllers\web\CashbackController;
 use App\Http\Controllers\web\ContactController;
 use App\Http\Controllers\web\CustomerController;
 use App\Http\Controllers\web\InvoiceController;
@@ -104,14 +105,19 @@ Route::group([
 
         // Tiếp tục đến trang thanh toán
         Route::post('/proceed-to-payment', [InvoiceController::class, 'proceedToPayment'])->name('proceed.payment');
-         // Order routes - đã có nhưng cần di chuyển ra khỏi prefix quote
+        // Order routes - đã có nhưng cần di chuyển ra khỏi prefix quote
 
-    Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
+        Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
 
-    // Invoice download route - đã có nhưng cần di chuyển ra khỏi prefix quote
-    Route::get('/invoice/{id}/download', [InvoiceController::class, 'downloadPdf'])->name('invoice.download');
-     // Payment routes
-    Route::get('/invoice/{id}/payment', [InvoiceController::class, 'proceedToPayment'])->name('proceed.payment');
-    Route::get('/payment/process', [InvoiceController::class, 'proceedToPayment'])->name('process.payment');
+        // Invoice download route - đã có nhưng cần di chuyển ra khỏi prefix quote
+        Route::get('/invoice/{id}/download', [InvoiceController::class, 'downloadPdf'])->name('invoice.download');
+        // Payment routes
+        Route::get('/invoice/{id}/payment', [InvoiceController::class, 'proceedToPayment'])->name('proceed.payment');
+        Route::get('/payment/process', [InvoiceController::class, 'proceedToPayment'])->name('process.payment');
+    });
+    // Thêm routes cho hoàn tiền
+    Route::group(['prefix' => 'cashback'], function () {
+        Route::post('/register', [CashbackController::class, 'register'])->name('cashback.register');
+        Route::get('/status', [CashbackController::class, 'getStatus'])->name('cashback.status');
     });
 });

@@ -221,26 +221,20 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label for="meta_data">Dữ liệu Meta (JSON)</label>
+                                    <label for="meta_data">Dữ liệu Meta</label>
                                     <textarea class="form-control @error('meta_data') is-invalid @enderror" id="meta_data" name="meta_data"
-                                        rows="3" placeholder='{
-    "key": "value",
-    "example": "data"
-}'>{{ old('meta_data', $product->meta_data) }}</textarea>
-                                    <small class="form-text text-muted">Nhập dữ liệu meta dưới định dạng JSON</small>
+                                        rows="3">{{ old('meta_data', $product->meta_data) }}</textarea>
+                                    <small class="form-text text-muted">Nhập dữ liệu meta (có thể chứa các khóa private,
+                                        chứng chỉ SSL...)</small>
                                     @error('meta_data')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="options">Tùy chọn (JSON)</label>
-                                    <textarea class="form-control @error('options') is-invalid @enderror" id="options" name="options" rows="3"
-                                        placeholder='{
-    "option1": "value1",
-    "option2": "value2"
-}'>{{ old('options', $product->options) }}</textarea>
-                                    <small class="form-text text-muted">Nhập các tùy chọn dưới định dạng JSON</small>
+                                    <label for="options">Tùy chọn</label>
+                                    <textarea class="form-control @error('options') is-invalid @enderror" id="options" name="options" rows="3">{{ old('options', $product->options) }}</textarea>
+                                    <small class="form-text text-muted">Nhập các tùy chọn bổ sung</small>
                                     @error('options')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -498,4 +492,15 @@
             }
         }
     </script>
+    @push('js')
+        <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+        <script>
+            $(function() {
+                // Các code khác...
+
+                // CKEditor cho mô tả chi tiết - không kèm upload ảnh
+                CKEDITOR.replace('description');
+            });
+        </script>
+    @endpush
 @endpush

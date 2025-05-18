@@ -18,7 +18,6 @@
     <!-- Theme Options -->
     <div class="hero_area">
         @include('layouts.web.header')
-        @include('layouts.web.banner')
     </div>
     @yield('content')
     @include('layouts.web.footer')

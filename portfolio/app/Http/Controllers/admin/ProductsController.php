@@ -83,36 +83,7 @@ class ProductsController extends Controller
             $data['image'] = $path;
         }
 
-        // Xử lý dữ liệu JSON
-        if (isset($data['meta_data']) && !empty($data['meta_data'])) {
-            try {
-                json_decode($data['meta_data']);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors(['meta_data' => 'Dữ liệu meta không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-                }
-            } catch (\Exception $e) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['meta_data' => 'Dữ liệu meta không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-            }
-        }
-
-        if (isset($data['options']) && !empty($data['options'])) {
-            try {
-                json_decode($data['options']);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors(['options' => 'Dữ liệu tùy chọn không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-                }
-            } catch (\Exception $e) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['options' => 'Dữ liệu tùy chọn không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-            }
-        }
+        // Bỏ phần kiểm tra định dạng JSON cho meta_data và options
 
         try {
             $product = $this->productsRepository->validateAndCreate($data);
@@ -201,36 +172,7 @@ class ProductsController extends Controller
             $data['image'] = $path;
         }
 
-        // Xử lý dữ liệu JSON
-        if (isset($data['meta_data']) && !empty($data['meta_data'])) {
-            try {
-                json_decode($data['meta_data']);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors(['meta_data' => 'Dữ liệu meta không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-                }
-            } catch (\Exception $e) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['meta_data' => 'Dữ liệu meta không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-            }
-        }
-
-        if (isset($data['options']) && !empty($data['options'])) {
-            try {
-                json_decode($data['options']);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors(['options' => 'Dữ liệu tùy chọn không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-                }
-            } catch (\Exception $e) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['options' => 'Dữ liệu tùy chọn không hợp lệ. Vui lòng nhập đúng định dạng JSON.']);
-            }
-        }
+        // Bỏ phần kiểm tra định dạng JSON cho meta_data và options
 
         try {
             $this->productsRepository->validateAndUpdate($data, $id);
@@ -242,7 +184,6 @@ class ProductsController extends Controller
                 ->withErrors(['error' => 'Lỗi: ' . $e->getMessage()]);
         }
     }
-
     /**
      * Xóa sản phẩm
      *

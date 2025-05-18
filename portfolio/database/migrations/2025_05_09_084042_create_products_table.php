@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->nullable()->unique();
             $table->string('sku')->nullable()->unique();
-            $table->text('description')->nullable();
+            $table->longText('description')->nullable();
             $table->text('short_description')->nullable();
             $table->decimal('price', 12, 2)->nullable();
             $table->decimal('sale_price', 12, 2)->nullable();
@@ -34,8 +34,8 @@ return new class extends Migration
             $table->boolean('is_recurring')->default(false);
             $table->integer('recurring_period')->nullable();
             $table->boolean('auto_renew')->default(false);
-            $table->json('meta_data')->nullable();
-            $table->json('options')->nullable();
+            $table->text('meta_data')->nullable();
+            $table->text('options')->nullable();
             $table->boolean('is_featured')->default(false);
             $table->integer('sort_order')->default(0);
             $table->timestamps();

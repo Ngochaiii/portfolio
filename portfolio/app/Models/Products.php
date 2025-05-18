@@ -108,4 +108,26 @@ class Products extends Model
     {
         return $query->where('service_status', $status);
     }
+    // Accessor để tự động chuyển text thành array/object khi lấy dữ liệu
+    public function getMetaDataAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    // Mutator để tự động chuyển array/object thành JSON string khi lưu
+    public function setMetaDataAttribute($value)
+    {
+        $this->attributes['meta_data'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    // Tương tự cho options
+    public function getOptionsAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    public function setOptionsAttribute($value)
+    {
+        $this->attributes['options'] = is_array($value) ? json_encode($value) : $value;
+    }
 }

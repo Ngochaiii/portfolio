@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admin\CashbackAdminController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ConfigController;
 use App\Http\Controllers\admin\CustomerController;
@@ -71,5 +72,13 @@ Route::group([
         Route::get('/', [PaymentController::class, 'index'])->name('admin.payments.index');
         Route::post('/{id}/approve', [PaymentController::class, 'approve'])->name('admin.payments.approve');
         Route::post('/{id}/reject', [PaymentController::class, 'reject'])->name('admin.payments.reject');
+    });
+
+    // Thêm routes quản lý hoàn tiền
+    Route::group(['prefix' => 'cashback'], function () {
+        Route::get('/', [CashbackAdminController::class, 'index'])->name('cashback.index');
+        Route::post('/{id}/approve', [CashbackAdminController::class, 'approve'])->name('cashback.approve');
+        Route::post('/{id}/reject', [CashbackAdminController::class, 'reject'])->name('cashback.reject');
+            Route::post('/{id}/process', [CashbackAdminController::class, 'markProcessed'])->name('cashback.process');
     });
 });

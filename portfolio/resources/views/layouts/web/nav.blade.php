@@ -19,9 +19,9 @@
         <li class="nav-item {{ request()->routeIs('contact.index') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('contact.index') }}">Contact Us</a>
         </li>
-        <li class="nav-item {{ request()->routeIs('invoice.index') ? 'active' : '' }}">
+        {{-- <li class="nav-item {{ request()->routeIs('invoice.index') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('invoice.index') }}">Invoice</a>
-        </li>
+        </li> --}}
 
         @guest
             <!-- Hiển thị khi chưa đăng nhập -->
