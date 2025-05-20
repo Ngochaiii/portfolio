@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,27 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrap();
           // Chia sẻ số lượng sản phẩm trong giỏ hàng với tất cả view
-        View::composer('*', function ($view) {
-            if (!session()->has('cart_count')) {
-                $cart = null;
-
-                if (Auth::check()) {
-                    $cart = Cart::where('user_id', Auth::id())->first();
-                } else {
-                    $sessionId = session()->getId();
-                    $cart = Cart::where('session_id', $sessionId)->first();
-                }
-
-                $cartCount = 0;
-                if ($cart) {
-                    $cartCount = CartItem::where('cart_id', $cart->id)->sum('quantity');
-                }
-
-                session(['cart_count' => $cartCount]);
-            }
-
-            $view->with('cart_count', session('cart_count', 0));
+         View::composer('layouts.app', function ($view) {
+            $cartItems = session('cart', []);
+            $view->with('cart_count', count($cartItems));
         });
     }
 }

@@ -35,7 +35,7 @@ class Orders extends Model
     // Relationship với OrderItem
     public function items()
     {
-        return $this->hasMany(Order_items::class);
+        return $this->hasMany(Order_items::class, 'order_id');
     }
 
     public function invoice()
@@ -46,6 +46,6 @@ class Orders extends Model
     // Relationship với Payment
     public function payments()
     {
-        return $this->hasMany(Payments::class);
+        return $this->hasMany(Payments::class, 'order_id');
     }
 }

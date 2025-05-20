@@ -66,6 +66,7 @@ Route::group([
         // Thêm các routes mới
         Route::get('/invoices', [CustomerController::class, 'showInvoices'])->name('customer.invoices');
         Route::get('/orders', [CustomerController::class, 'showOrders'])->name('customer.orders');
+        Route::get('/orders/{id}', [CustomerController::class, 'showOrderDetail'])->name('customer.order.detail');
     });
 
     // routes/web.php

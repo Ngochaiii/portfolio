@@ -63,6 +63,8 @@
                                             <th>Mã giao dịch</th>
                                             <th>Mã hóa đơn</th>
                                             <th>Khách hàng</th>
+                                            <th>Dịch vụ</th>
+                                            <th>Domain</th>
                                             <th>Số tiền</th>
                                             <th>Phương thức</th>
                                             <th>Trạng thái</th>
@@ -72,6 +74,21 @@
                                     </thead>
                                     <tbody>
                                         @forelse($payments as $payment)
+                                            @php
+                                                // Lấy domain từ order_items
+                                                $domainItems = [];
+                                                if($payment->invoice && $payment->invoice->order) {
+                                                    $orderItems = \App\Models\Order_items::where('order_id', $payment->invoice->order->id)
+                                                        ->whereNotNull('domain')
+                                                        ->get();
+
+                                                    foreach($orderItems as $item) {
+                                                        if(!empty($item->domain)) {
+                                                            $domainItems[] = $item->domain;
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
                                             <tr>
                                                 <td>{{ $payment->transaction_id }}</td>
                                                 <td>{{ $payment->invoice->invoice_number ?? 'N/A' }}</td>
@@ -81,6 +98,37 @@
                                                         <small>{{ $payment->order->customer->user->email }}</small>
                                                     @else
                                                         <span class="text-muted">Không có thông tin</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($payment->invoice && $payment->invoice->order)
+                                                        @php
+                                                            $orderItems = \App\Models\Order_items::where('order_id', $payment->invoice->order->id)
+                                                                ->get();
+                                                        @endphp
+
+                                                        @if($orderItems && $orderItems->count() > 0)
+                                                            @foreach($orderItems->take(2) as $item)
+                                                                <div>{{ $item->name }}</div>
+                                                            @endforeach
+
+                                                            @if($orderItems->count() > 2)
+                                                                <small class="text-muted">+{{ $orderItems->count() - 2 }} dịch vụ khác</small>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-muted">N/A</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="text-muted">N/A</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @foreach($domainItems as $domain)
+                                                        <span class="badge badge-info">{{ $domain }}</span><br>
+                                                    @endforeach
+
+                                                    @if(count($domainItems) == 0)
+                                                        <span class="text-muted">N/A</span>
                                                     @endif
                                                 </td>
                                                 <td>{{ number_format($payment->amount, 0, ',', '.') }} đ</td>
@@ -151,6 +199,17 @@
                                                                             <p><strong>Số tiền:</strong>
                                                                                 {{ number_format($payment->amount, 0, ',', '.') }}
                                                                                 đ</p>
+
+                                                                            <!-- Hiển thị domain cho admin -->
+                                                                            @if(count($domainItems) > 0)
+                                                                                <p><strong>Domain:</strong></p>
+                                                                                <ul>
+                                                                                    @foreach($domainItems as $domain)
+                                                                                        <li>{{ $domain }}</li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @endif
+
                                                                             <p class="text-success">Đơn hàng sẽ được chuyển sang trạng thái đang xử lý.</p>
                                                                         </div>
                                                                         <div class="modal-footer">
@@ -197,6 +256,16 @@
                                                                                 {{ number_format($payment->amount, 0, ',', '.') }}
                                                                                 đ</p>
 
+                                                                            <!-- Hiển thị domain cho admin -->
+                                                                            @if(count($domainItems) > 0)
+                                                                                <p><strong>Domain:</strong></p>
+                                                                                <ul>
+                                                                                    @foreach($domainItems as $domain)
+                                                                                        <li>{{ $domain }}</li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @endif
+
                                                                             <div class="form-group">
                                                                                 <label for="reason">Lý do từ chối <span
                                                                                         class="text-danger">*</span></label>
@@ -221,7 +290,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="8" class="text-center">Không có thanh toán nào</td>
+                                                <td colspan="10" class="text-center">Không có thanh toán nào</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

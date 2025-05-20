@@ -90,6 +90,8 @@
                                         <tr>
                                             <th>Mã đơn hàng</th>
                                             <th>Ngày mua</th>
+                                            <th>Domain</th>
+                                            <th>Ngày hết hạn</th> <!-- New column -->
                                             <th>Tổng tiền</th>
                                             <th>Trạng thái</th>
                                             <th>Thao tác</th>
@@ -100,6 +102,25 @@
                                             <tr>
                                                 <td>{{ $order->order_number }}</td>
                                                 <td>{{ $order->created_at->format('d/m/Y') }}</td>
+                                                <td>
+                                                    @if (count($order->domains) > 0)
+                                                        @foreach ($order->domains as $domain)
+                                                            <span
+                                                                class="badge bg-info text-white mb-1">{{ $domain }}</span><br>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-muted">N/A</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (isset($order->expiration_date))
+                                                        <span class="badge bg-warning text-white">
+                                                            {{ $order->expiration_date->format('d/m/Y') }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-muted">N/A</span>
+                                                    @endif
+                                                </td>
                                                 <td>{{ number_format($order->total_amount, 0, ',', '.') }} đ</td>
                                                 <td>
                                                     @if ($order->status == 'completed')
@@ -144,17 +165,14 @@
                                                             @endif
                                                         @else
                                                             <!-- Hiển thị các nút mặc định cho đơn hàng không đủ điều kiện -->
-                                                            <a href="{{ route('homepage') }}"
-                                                                class="btn btn-info">
+                                                            <a href="{{ route('homepage') }}" class="btn btn-info">
                                                                 <i class="fa fa-eye"></i> Tiếp tục mua hàng
                                                             </a>
-                                                            {{-- @if ($order->invoice)
-                                                                <a href="{{ route('invoice.download', $order->invoice->id) }}"
-                                                                    class="btn btn-secondary">
-                                                                    <i class="fa fa-download"></i> Hóa đơn
-                                                                </a>
-                                                            @endif --}}
                                                         @endif
+                                                        <a href="{{ route('customer.order.detail', $order->id) }}"
+                                                            class="btn btn-success">
+                                                            <i class="fa fa-eye"></i> Xem chi tiết
+                                                        </a>
                                                     </div>
                                                 </td>
                                             </tr>

@@ -402,6 +402,14 @@ class InvoiceController extends Controller
         // Số tiền cần thanh toán
         $amountToPay = $invoice->total_amount;
 
+        // Xử lý thông tin domain cho các sản phẩm trong đơn hàng
+        foreach ($invoice->order->items as $item) {
+            $options = json_decode($item->options, true) ?: [];
+            $item->period = $options['period'] ?? $item->duration ?? 1;
+            $item->domain = $item->domain ?? ($options['domain'] ?? 'N/A');
+            $item->isSSLorDomain = $item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain');
+        }
+
         // Kiểm tra số dư tài khoản
         if ($customer->hasBalance($amountToPay)) {
             // Đủ tiền - Thực hiện thanh toán từ ví
@@ -544,83 +552,133 @@ class InvoiceController extends Controller
         // Lấy thông tin cấu hình
         $config = Config::current();
 
+        // Tạo bảng thông tin dịch vụ và domain
+        $servicesHtml = '';
+        foreach ($invoice->order->items as $item) {
+            $options = json_decode($item->options, true) ?: [];
+            $period = $options['period'] ?? $item->duration ?? 1;
+            $domain = $item->domain ?? ($options['domain'] ?? 'N/A');
+
+            // Kiểm tra xem item có phải là SSL hoặc domain không
+            $isSSLorDomain = $item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain');
+
+            // Tạo highlight cho domain nếu là dịch vụ SSL hoặc domain
+            $domainCell = $isSSLorDomain && $domain != 'N/A'
+                ? "<strong style='color: #0d6efd;'>{$domain}</strong>"
+                : "-";
+
+            $subtotal = number_format($item->subtotal, 0, ',', '.') . ' đ';
+
+            $servicesHtml .= "
+        <tr>
+            <td>{$item->name}</td>
+            <td>{$period} năm</td>
+            <td>{$domainCell}</td>
+            <td style='text-align: right;'>{$subtotal}</td>
+        </tr>";
+        }
+
         // Tạo nội dung email
         $emailContent = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset='UTF-8'>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            .header h1 { margin: 0; color: #333; font-size: 24px; }
-            .success-box { background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
-            th { font-weight: bold; }
-            .footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; font-size: 12px; color: #777; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h1>" . ($config->company_name ?? 'Hostist company') . "</h1>
-                <p>Xác nhận thanh toán</p>
-            </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .header h1 { margin: 0; color: #333; font-size: 24px; }
+        .success-box { background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { font-weight: bold; }
+        .footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; font-size: 12px; color: #777; text-align: center; }
+        .services-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .services-table th, .services-table td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        .services-table th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>" . ($config->company_name ?? 'Hostist company') . "</h1>
+            <p>Xác nhận thanh toán</p>
+        </div>
 
-            <div class='success-box'>
-                <p><strong>Thanh toán thành công!</strong> Cảm ơn bạn đã thanh toán.</p>
-            </div>
+        <div class='success-box'>
+            <p><strong>Thanh toán thành công!</strong> Cảm ơn bạn đã thanh toán.</p>
+        </div>
 
-            <p>Kính gửi {$user->name},</p>
+        <p>Kính gửi {$user->name},</p>
 
-            <p>Chúng tôi xác nhận đã nhận được thanh toán của bạn với thông tin như sau:</p>
+        <p>Chúng tôi xác nhận đã nhận được thanh toán của bạn với thông tin như sau:</p>
 
-            <table>
-                <tr>
-                    <th>Mã hóa đơn:</th>
-                    <td>{$invoice->invoice_number}</td>
-                </tr>
-                <tr>
-                    <th>Mã đơn hàng:</th>
-                    <td>{$invoice->order->order_number}</td>
-                </tr>
-                <tr>
-                    <th>Số tiền:</th>
-                    <td>" . number_format($payment->amount, 0, ',', '.') . " đ</td>
-                </tr>
-                <tr>
-                    <th>Phương thức:</th>
-                    <td>Thanh toán từ số dư tài khoản</td>
-                </tr>
-                <tr>
-                    <th>Ngày thanh toán:</th>
-                    <td>{$payment->payment_date->format('d/m/Y H:i:s')}</td>
-                </tr>
-                <tr>
-                    <th>Mã giao dịch:</th>
-                    <td>{$payment->transaction_id}</td>
-                </tr>
-            </table>
+        <table>
+            <tr>
+                <th>Mã hóa đơn:</th>
+                <td>{$invoice->invoice_number}</td>
+            </tr>
+            <tr>
+                <th>Mã đơn hàng:</th>
+                <td>{$invoice->order->order_number}</td>
+            </tr>
+            <tr>
+                <th>Số tiền:</th>
+                <td>" . number_format($payment->amount, 0, ',', '.') . " đ</td>
+            </tr>
+            <tr>
+                <th>Phương thức:</th>
+                <td>Thanh toán từ số dư tài khoản</td>
+            </tr>
+            <tr>
+                <th>Ngày thanh toán:</th>
+                <td>{$payment->payment_date->format('d/m/Y H:i:s')}</td>
+            </tr>
+            <tr>
+                <th>Mã giao dịch:</th>
+                <td>{$payment->transaction_id}</td>
+            </tr>
+        </table>
 
-            <p>Đơn hàng của bạn đang được xử lý. Bạn có thể theo dõi tình trạng đơn hàng tại
-            <a href='" . route('customer.orders') . "'>Trang quản lý đơn hàng</a>.</p>
+        <p>Chi tiết dịch vụ:</p>
+        <table class='services-table'>
+            <thead>
+                <tr>
+                    <th>Dịch vụ</th>
+                    <th>Thời hạn</th>
+                    <th>Domain</th>
+                    <th style='text-align: right;'>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {$servicesHtml}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan='3' style='text-align: right;'>Tổng cộng:</th>
+                    <th style='text-align: right;'>" . number_format($invoice->total_amount, 0, ',', '.') . " đ</th>
+                </tr>
+            </tfoot>
+        </table>
 
-            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email " .
+        <p>Đơn hàng của bạn đang được xử lý. Bạn có thể theo dõi tình trạng đơn hàng tại
+        <a href='" . route('customer.orders') . "'>Trang quản lý đơn hàng</a>.</p>
+
+        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email " .
             ($config->support_email ?? 'supposthostit@gmail.com') . " hoặc số điện thoại " .
             ($config->support_phone ?? 'N/A') . ".</p>
 
-            <p>Trân trọng,<br>
-            " . ($config->company_name ?? 'Hostist company') . "</p>
+        <p>Trân trọng,<br>
+        " . ($config->company_name ?? 'Hostist company') . "</p>
 
-            <div class='footer'>
-                <p>© " . date('Y') . " " . ($config->company_name ?? 'Hostist company') . ". Tất cả các quyền được bảo lưu.</p>
-            </div>
+        <div class='footer'>
+            <p>© " . date('Y') . " " . ($config->company_name ?? 'Hostist company') . ". Tất cả các quyền được bảo lưu.</p>
         </div>
-    </body>
-    </html>
-    ";
+    </div>
+</body>
+</html>
+";
 
         // Gửi email
         Mail::html($emailContent, function ($mail) use ($user, $invoice) {
@@ -637,97 +695,147 @@ class InvoiceController extends Controller
         // Lấy thông tin cấu hình
         $config = Config::current();
 
+        // Tạo bảng thông tin dịch vụ và domain
+        $servicesHtml = '';
+        foreach ($invoice->order->items as $item) {
+            $options = json_decode($item->options, true) ?: [];
+            $period = $options['period'] ?? $item->duration ?? 1;
+            $domain = $item->domain ?? ($options['domain'] ?? 'N/A');
+
+            // Kiểm tra xem item có phải là SSL hoặc domain không
+            $isSSLorDomain = $item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain');
+
+            // Tạo highlight cho domain nếu là dịch vụ SSL hoặc domain
+            $domainCell = $isSSLorDomain && $domain != 'N/A'
+                ? "<strong style='color: #0d6efd;'>{$domain}</strong>"
+                : "-";
+
+            $subtotal = number_format($item->subtotal, 0, ',', '.') . ' đ';
+
+            $servicesHtml .= "
+        <tr>
+            <td>{$item->name}</td>
+            <td>{$period} năm</td>
+            <td>{$domainCell}</td>
+            <td>{$subtotal}</td>
+        </tr>";
+        }
+
         // Tạo nội dung email
         $emailContent = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset='UTF-8'>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            .header h1 { margin: 0; color: #333; font-size: 24px; }
-            .info-box { background-color: #cce5ff; border-color: #b8daff; color: #004085; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
-            th { font-weight: bold; width: 40%; }
-            .footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; font-size: 12px; color: #777; text-align: center; }
-            .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h1>" . ($config->company_name ?? 'Hostist company') . "</h1>
-                <p>Thông báo yêu cầu thanh toán mới</p>
-            </div>
-
-            <div class='info-box'>
-                <p><strong>Có yêu cầu thanh toán mới!</strong> Khách hàng đã chọn phương thức chuyển khoản ngân hàng.</p>
-            </div>
-
-            <p>Thông tin khách hàng:</p>
-            <table>
-                <tr>
-                    <th>Tên khách hàng:</th>
-                    <td>{$user->name}</td>
-                </tr>
-                <tr>
-                    <th>Email:</th>
-                    <td>{$user->email}</td>
-                </tr>
-                <tr>
-                    <th>ID khách hàng:</th>
-                    <td>{$user->customer->id}</td>
-                </tr>
-            </table>
-
-            <p>Thông tin thanh toán:</p>
-            <table>
-                <tr>
-                    <th>Mã hóa đơn:</th>
-                    <td>{$invoice->invoice_number}</td>
-                </tr>
-                <tr>
-                    <th>Mã đơn hàng:</th>
-                    <td>{$invoice->order->order_number}</td>
-                </tr>
-                <tr>
-                    <th>Số tiền thanh toán:</th>
-                    <td>" . number_format($payment->amount, 0, ',', '.') . " đ</td>
-                </tr>
-                <tr>
-                    <th>Mã giao dịch:</th>
-                    <td>{$payment->transaction_id}</td>
-                </tr>
-                <tr>
-                    <th>Phương thức thanh toán:</th>
-                    <td>Chuyển khoản ngân hàng</td>
-                </tr>
-                <tr>
-                    <th>Ngày tạo yêu cầu:</th>
-                    <td>{$payment->payment_date->format('d/m/Y H:i:s')}</td>
-                </tr>
-                <tr>
-                    <th>Nội dung thanh toán:</th>
-                    <td>ThanhToan{$invoice->invoice_number}</td>
-                </tr>
-            </table>
-
-            <p>Sau khi nhận được thanh toán từ khách hàng, vui lòng truy cập trang quản trị để xác nhận thanh toán:</p>
-
-            <div style='text-align: center; margin: 20px 0;'>
-                <a href='" . route('admin.payments.index') . "' class='btn'>Xem danh sách thanh toán</a>
-            </div>
-
-            <div class='footer'>
-                <p>© " . date('Y') . " " . ($config->company_name ?? 'Hostist company') . ". Tất cả các quyền được bảo lưu.</p>
-            </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .header h1 { margin: 0; color: #333; font-size: 24px; }
+        .info-box { background-color: #cce5ff; border-color: #b8daff; color: #004085; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { font-weight: bold; width: 40%; }
+        .footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; font-size: 12px; color: #777; text-align: center; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; }
+        .services-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .services-table th, .services-table td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        .services-table th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>" . ($config->company_name ?? 'Hostist company') . "</h1>
+            <p>Thông báo yêu cầu thanh toán mới</p>
         </div>
-    </body>
-    </html>
-    ";
+
+        <div class='info-box'>
+            <p><strong>Có yêu cầu thanh toán mới!</strong> Khách hàng đã chọn phương thức chuyển khoản ngân hàng.</p>
+        </div>
+
+        <p>Thông tin khách hàng:</p>
+        <table>
+            <tr>
+                <th>Tên khách hàng:</th>
+                <td>{$user->name}</td>
+            </tr>
+            <tr>
+                <th>Email:</th>
+                <td>{$user->email}</td>
+            </tr>
+            <tr>
+                <th>ID khách hàng:</th>
+                <td>{$user->customer->id}</td>
+            </tr>
+        </table>
+
+        <p>Thông tin thanh toán:</p>
+        <table>
+            <tr>
+                <th>Mã hóa đơn:</th>
+                <td>{$invoice->invoice_number}</td>
+            </tr>
+            <tr>
+                <th>Mã đơn hàng:</th>
+                <td>{$invoice->order->order_number}</td>
+            </tr>
+            <tr>
+                <th>Số tiền thanh toán:</th>
+                <td>" . number_format($payment->amount, 0, ',', '.') . " đ</td>
+            </tr>
+            <tr>
+                <th>Mã giao dịch:</th>
+                <td>{$payment->transaction_id}</td>
+            </tr>
+            <tr>
+                <th>Phương thức thanh toán:</th>
+                <td>Chuyển khoản ngân hàng</td>
+            </tr>
+            <tr>
+                <th>Ngày tạo yêu cầu:</th>
+                <td>{$payment->payment_date->format('d/m/Y H:i:s')}</td>
+            </tr>
+            <tr>
+                <th>Nội dung thanh toán:</th>
+                <td>ThanhToan{$invoice->invoice_number}</td>
+            </tr>
+        </table>
+
+        <p>Chi tiết dịch vụ:</p>
+        <table class='services-table'>
+            <thead>
+                <tr>
+                    <th>Dịch vụ</th>
+                    <th>Thời hạn</th>
+                    <th>Domain</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {$servicesHtml}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan='3' style='text-align: right;'>Tổng cộng:</th>
+                    <th>" . number_format($invoice->total_amount, 0, ',', '.') . " đ</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <p>Sau khi nhận được thanh toán từ khách hàng, vui lòng truy cập trang quản trị để xác nhận thanh toán:</p>
+
+        <div style='text-align: center; margin: 20px 0;'>
+            <a href='" . route('admin.payments.index') . "' class='btn'>Xem danh sách thanh toán</a>
+        </div>
+
+        <div class='footer'>
+            <p>© " . date('Y') . " " . ($config->company_name ?? 'Hostist company') . ". Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </div>
+</body>
+</html>
+";
 
         // Gửi email
         Mail::html($emailContent, function ($mail) use ($adminEmail, $payment) {
@@ -784,6 +892,11 @@ class InvoiceController extends Controller
                 // Tính toán đơn giá từ subtotal và quantity nếu price không có sẵn
                 $itemPrice = isset($item->price) ? $item->price : ($item->subtotal / $item->quantity);
 
+                // Parse options để lấy thông tin period và domain
+                $options = json_decode($item->options, true) ?: [];
+                $period = $options['period'] ?? 1;
+                $domain = $options['domain'] ?? null;
+
                 // Tạo order item
                 $orderItem = new Order_items();
                 $orderItem->order_id = $order->id;
@@ -791,15 +904,21 @@ class InvoiceController extends Controller
                 $orderItem->name = $item->product->name;
                 $orderItem->quantity = $item->quantity;
                 $orderItem->price = $itemPrice;
-                $orderItem->options = $item->options;
+                $orderItem->options = $item->options; // Lưu toàn bộ options bao gồm domain
                 $orderItem->subtotal = $item->subtotal;
                 $orderItem->total = $item->subtotal;
                 $orderItem->tax_percent = 0;
                 $orderItem->tax_amount = 0;
                 $orderItem->discount_percent = 0;
                 $orderItem->discount_amount = 0;
-                $orderItem->duration = json_decode($item->options, true)['period'] ?? 1;
+                $orderItem->duration = $period;
                 $orderItem->sku = $item->product->sku ?? '';
+
+                // Nếu bạn đã thêm trường domain riêng vào bảng order_items
+                if ($domain && $item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain')) {
+                    $orderItem->domain = $domain;
+                }
+
                 $orderItem->save();
             }
 

@@ -70,15 +70,25 @@ class QuoteController extends Controller
             foreach ($cart->items as $item) {
                 $options = json_decode($item->options, true) ?: [];
                 $period = $options['period'] ?? 1;
+                $domain = $options['domain'] ?? 'N/A'; // Thêm domain
                 $productName = $item->product->name ?? 'Sản phẩm';
                 $productSubtotal = number_format($item->subtotal, 0, ',', '.') . ' đ';
 
+                // Thêm domain vào HTML nếu sản phẩm là SSL hoặc domain
+                $domainInfo = '';
+                if ($item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain')) {
+                    $domainInfo = "<div><small>Domain: <strong>{$domain}</strong></small></div>";
+                }
+
                 $productsHtml .= "
                 <tr>
-                    <td>{$period} năm {$productName}</td>
+                    <td>
+                        {$period} năm {$productName}
+                        {$domainInfo}
+                    </td>
                     <td>{$productSubtotal}</td>
                 </tr>
-            ";
+                ";
             }
 
             // Tạo nội dung email HTML trực tiếp
@@ -104,9 +114,7 @@ class QuoteController extends Controller
                         <h1>" . ($config->company_name ?? 'Hostist company') . "</h1>
                         <p>Báo giá #{$quoteNumber}</p>
                     </div>
-
                     <p>Kính gửi {$user->name},</p>
-
                     <p>Cảm ơn bạn đã quan tâm đến dịch vụ của chúng tôi. Chúng tôi gửi đến bạn báo giá theo yêu cầu.</p>";
 
             // Thêm lời nhắn nếu có
@@ -124,7 +132,6 @@ class QuoteController extends Controller
                         <p><strong>Ngày hết hạn:</strong> {$expireDate}</p>
                         <p><strong>Mã báo giá:</strong> {$quoteNumber}</p>
                     </div>
-
                     <div>
                         <h3>Thông tin báo giá</h3>
                         <table>
@@ -145,23 +152,19 @@ class QuoteController extends Controller
                             </tfoot>
                         </table>
                     </div>
-
                     <p>Vui lòng kiểm tra file PDF đính kèm để xem chi tiết báo giá.</p>
-
                     <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email " .
                 ($config->support_email ?? 'supposthostit@gmail.com') . " hoặc số điện thoại " .
                 ($config->support_phone ?? 'N/A') . ".</p>
-
                     <p>Trân trọng,<br>
                     " . ($config->company_name ?? 'Hostist company') . "</p>
-
                     <div class='footer'>
                         <p>© " . date('Y') . " " . ($config->company_name ?? 'Hostist company') . ". Tất cả các quyền được bảo lưu.</p>
                     </div>
                 </div>
             </body>
             </html>
-        ";
+            ";
 
             // Gửi email với nội dung HTML trực tiếp thay vì sử dụng view
             Mail::html($emailContent, function ($message) use ($email, $quoteNumber, $config, $pdf) {
@@ -175,6 +178,7 @@ class QuoteController extends Controller
             return back()->with('error', 'Lỗi khi gửi email: ' . $e->getMessage());
         }
     }
+
     /**
      * Tạo PDF để có thể sử dụng ở nhiều phương thức khác nhau
      */
@@ -207,10 +211,32 @@ class QuoteController extends Controller
         $total = $subtotal;
 
         // QR code path
-        $qrCodePath = $config->company_bank_qr_code ? public_path('storage/' . $config->company_bank_qr_code) : public_path('images/qr-placeholder.png');
+        $qrCodePath = $config->company_bank_qr_code ?
+            public_path('storage/' . $config->company_bank_qr_code) :
+            public_path('images/qr-placeholder.png');
 
         // Tạo view cho PDF
-        $data = compact('cart', 'user', 'config', 'quoteNumber', 'quoteDate', 'expireDate', 'subtotal', 'vatRate', 'vatAmount', 'total', 'qrCodePath');
+        $data = compact(
+            'cart',
+            'user',
+            'config',
+            'quoteNumber',
+            'quoteDate',
+            'expireDate',
+            'subtotal',
+            'vatRate',
+            'vatAmount',
+            'total',
+            'qrCodePath'
+        );
+
+        // Thêm logic để hiển thị thông tin domain
+        foreach ($cart->items as $item) {
+            if ($item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain')) {
+                $options = json_decode($item->options, true) ?: [];
+                $item->domain = $options['domain'] ?? 'N/A';
+            }
+        }
 
         $pdf = PDF::loadView('source.web.quote.pdf', $data);
 

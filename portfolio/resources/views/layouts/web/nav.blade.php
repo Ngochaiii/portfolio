@@ -64,8 +64,12 @@
         <li class="nav-item">
             <a class="nav-link" href="{{ route('cart.index') }}">
                 <i class="fa fa-shopping-cart"></i> Giỏ hàng
-                @if (session('cart_count') && session('cart_count') > 0)
-                    <span class="badge badge-pill badge-primary">{{ session('cart_count') }}</span>
+                @php
+                    $cartItems = session('cart', []);
+                    $cartCount = count($cartItems);
+                @endphp
+                @if ($cartCount > 0)
+                    <span class="badge badge-pill badge-primary">{{ $cartCount }}</span>
                 @endif
             </a>
         </li>

@@ -8,15 +8,15 @@
                 <div class="row">
                     <div class="col-md-4 text-center progress-step active">
                         <div class="step-circle">1</div>
-                        <div class="step-label">Giỏ hàng</div>
+                        <div class="step-label">Cart</div>
                     </div>
                     <div class="col-md-4 text-center progress-step active">
                         <div class="step-circle">2</div>
-                        <div class="step-label">Báo giá</div>
+                        <div class="step-label">Quote</div>
                     </div>
                     <div class="col-md-4 text-center progress-step">
                         <div class="step-circle">3</div>
-                        <div class="step-label">Thanh toán</div>
+                        <div class="step-label">Payment</div>
                     </div>
                 </div>
             </div>
@@ -39,13 +39,13 @@
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">{{ $cart->items[0]->product->type == 'ssl' ? 'SSL Certificate' : 'Hosting/Domain' }}
                         Invoice #{{ $quoteNumber }}</h4>
-                    <span class="badge badge-danger">Chưa thanh toán</span>
+                    <span class="badge badge-danger">Unpaid</span>
                 </div>
 
                 <div class="card-body">
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <h5>Thanh toán cho:</h5>
+                            <h5>Payment to:</h5>
                             <address>
                                 <strong>{{ $config->company_name ?? 'Hostist company' }}</strong><br>
                                 {{ $config->company_address ?? '5335 Gate Pkwy, 2nd Floor, Jacksonville, FL 32256' }}<br>
@@ -58,16 +58,16 @@
                         </div>
 
                         <div class="col-md-6 text-right">
-                            <h5>Hóa đơn gửi đến:</h5>
+                            <h5>Invoice to:</h5>
                             <address>
                                 <strong>{{ $user->name }}</strong><br>
-                                {{ $user->address ?? 'Chưa cung cấp địa chỉ' }}<br>
+                                {{ $user->address ?? 'Address not provided' }}<br>
                                 <strong>Email:</strong> {{ $user->email }}<br>
                                 @if ($user->customer && $user->customer->website)
                                     <strong>Domain:</strong> {{ $user->customer->website }}<br>
                                 @endif
-                                <strong>Ngày tạo hóa đơn:</strong> {{ $quoteDate }}<br>
-                                <strong>Ngày đến hạn:</strong> {{ $expireDate }}
+                                <strong>Invoice Date:</strong> {{ $quoteDate }}<br>
+                                <strong>Due Date:</strong> {{ $expireDate }}
                             </address>
                         </div>
                     </div>
@@ -76,8 +76,8 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Mô tả</th>
-                                    <th class="text-right">Số tiền</th>
+                                    <th>Description</th>
+                                    <th class="text-right">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -105,7 +105,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th>Tổng phụ</th>
+                                    <th>Subtotal</th>
                                     <th class="text-right">{{ number_format($subtotal, 0, ',', '.') }} đ</th>
                                 </tr>
                                 <tr>
@@ -113,11 +113,11 @@
                                     <th class="text-right">0 đ</th>
                                 </tr>
                                 <tr>
-                                    <th>Tín dụng</th>
+                                    <th>Credit</th>
                                     <th class="text-right">0 đ</th>
                                 </tr>
                                 <tr>
-                                    <th>Tổng cộng</th>
+                                    <th>Total</th>
                                     <th class="text-right">{{ number_format($total, 0, ',', '.') }} đ</th>
                                 </tr>
                             </tfoot>

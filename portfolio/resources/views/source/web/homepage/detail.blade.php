@@ -123,6 +123,27 @@
                                                             <option value="5">5 năm</option>
                                                         </select>
                                                     </div>
+
+                                                    <!-- THÊM TRƯỜNG DOMAIN CHO SSL VÀ DOMAIN -->
+                                                    @if ($product->type == 'ssl' || $product->type == 'domain')
+                                                    <div class="form-group mb-3">
+                                                        <label for="domain">Domain:</label>
+                                                        <input type="text" name="options[domain]" id="domain"
+                                                               class="form-control @error('options.domain') is-invalid @enderror"
+                                                               placeholder="example.com" required>
+                                                        <small class="form-text text-muted">
+                                                            @if($product->type == 'ssl')
+                                                            Nhập tên miền để cài đặt chứng chỉ SSL
+                                                            @elseif($product->type == 'domain')
+                                                            Nhập tên miền bạn muốn đăng ký/gia hạn
+                                                            @endif
+                                                        </small>
+                                                        @error('options.domain')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    @endif
+
                                                     <div class="form-check mb-3">
                                                         <input class="form-check-input" type="checkbox"
                                                             name="options[auto_renew]" id="auto_renew" value="1">
@@ -300,6 +321,30 @@
 
             // Kích hoạt sự kiện change để cập nhật giá ban đầu
             periodSelect.dispatchEvent(new Event('change'));
+
+            // Thêm validation cho trường domain nếu có
+            const domainInput = document.getElementById('domain');
+            if (domainInput) {
+                domainInput.addEventListener('blur', function() {
+                    this.value = this.value.trim().toLowerCase();
+
+                    // Simple domain validation
+                    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
+                    if (this.value && !domainRegex.test(this.value)) {
+                        this.classList.add('is-invalid');
+                        let feedback = this.nextElementSibling.nextElementSibling;
+                        if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                            feedback = document.createElement('div');
+                            feedback.classList.add('invalid-feedback');
+                            this.parentNode.appendChild(feedback);
+                        }
+                        feedback.textContent = 'Vui lòng nhập tên miền hợp lệ (ví dụ: example.com)';
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
+            }
         });
     </script>
 @endpush
@@ -334,6 +379,25 @@
 
         #displayed-price {
             font-size: 1.1rem;
+        }
+
+        /* Thêm style cho form domain */
+        .form-control.is-valid {
+            border-color: #28a745;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
         }
     </style>
 @endpush

@@ -223,7 +223,7 @@
                                 <div class="form-group">
                                     <label for="meta_data">Dữ liệu Meta</label>
                                     <textarea class="form-control @error('meta_data') is-invalid @enderror" id="meta_data" name="meta_data"
-                                        rows="3">{{ old('meta_data', $product->meta_data) }}</textarea>
+                                        rows="3">{{ old('meta_data', is_array($product->meta_data) ? json_encode($product->meta_data, JSON_PRETTY_PRINT) : $product->meta_data) }}</textarea>
                                     <small class="form-text text-muted">Nhập dữ liệu meta (có thể chứa các khóa private,
                                         chứng chỉ SSL...)</small>
                                     @error('meta_data')
@@ -233,7 +233,7 @@
 
                                 <div class="form-group">
                                     <label for="options">Tùy chọn</label>
-                                    <textarea class="form-control @error('options') is-invalid @enderror" id="options" name="options" rows="3">{{ old('options', $product->options) }}</textarea>
+                                    <textarea class="form-control @error('options') is-invalid @enderror" id="options" name="options" rows="3">{{ old('options', is_array($product->options) ? json_encode($product->options, JSON_PRETTY_PRINT) : $product->options) }}</textarea>
                                     <small class="form-text text-muted">Nhập các tùy chọn bổ sung</small>
                                     @error('options')
                                         <span class="invalid-feedback">{{ $message }}</span>

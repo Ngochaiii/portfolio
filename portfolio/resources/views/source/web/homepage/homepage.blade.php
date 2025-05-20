@@ -15,19 +15,18 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="box">
                             <div class="img-box">
-                                {{-- @if ($service->image)
-                                    <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}">
-                                @else
-                                    <img src="{{ asset('images/s' . (($loop->index % 6) + 1) . '.png') }}"
-                                        alt="{{ $service->name }}">
-                                @endif --}}
+
                             </div>
                             <div class="detail-box">
                                 <h4>
                                     {{ $service->name }}
                                 </h4>
                                 <p>
-                                    {{ $service->short_description ?? Str::limit(strip_tags($service->description), 150) }}
+                                    @if ($service->short_description)
+                                        {{ $service->short_description }}
+                                    @else
+                                        {!! Str::limit(strip_tags($service->description), 150) !!}
+                                    @endif
                                 </p>
                                 <a href="{{ route('service.detail', $service->slug) }}">
                                     Read More
@@ -41,7 +40,7 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="box">
                             <div class="img-box">
-                                <img src="{{ asset('images/s1.png') }}" alt="SSL Certificates">
+
                             </div>
                             <div class="detail-box">
                                 <h4>
@@ -176,24 +175,45 @@
                 @forelse($hostingSolutions as $solution)
                     <div class="box">
                         <div class="detail-box">
-                            @if ($solution->is_recurring && $solution->recurring_period)
-                                @if ($solution->sale_price)
-                                    <h2>{{ number_format($solution->sale_price, 0, ',', '.') }}
-                                        <span>Đ/{{ $solution->recurring_period == 12 ? 'year' : ($solution->recurring_period == 1 ? 'month' : $solution->recurring_period . ' months') }}</span>
-                                    </h2>
+                            <!-- Hiển thị giá và kỳ hạn -->
+                            <div class="price-badge">
+                                @if ($solution->is_recurring && $solution->recurring_period)
+                                    @if ($solution->sale_price)
+                                        <h2>{{ number_format($solution->sale_price, 0, ',', '.') }}
+                                            <span>Đ</span>
+                                        </h2>
+                                        <div class="period-tag">
+                                            {{ $solution->recurring_period == 12 ? 'Năm' : ($solution->recurring_period == 1 ? 'Tháng' : $solution->recurring_period . ' Tháng') }}
+                                        </div>
+                                        @if ($solution->price > $solution->sale_price)
+                                            <div class="original-price">
+                                                <del>{{ number_format($solution->price, 0, ',', '.') }}Đ</del>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <h2>{{ number_format($solution->price, 0, ',', '.') }}
+                                            <span>Đ</span>
+                                        </h2>
+                                        <div class="period-tag">
+                                            {{ $solution->recurring_period == 12 ? 'Năm' : ($solution->recurring_period == 1 ? 'Tháng' : $solution->recurring_period . ' Tháng') }}
+                                        </div>
+                                    @endif
                                 @else
-                                    <h2>{{ number_format($solution->price, 0, ',', '.') }}
-                                        <span>Đ/{{ $solution->recurring_period == 12 ? 'year' : ($solution->recurring_period == 1 ? 'month' : $solution->recurring_period . ' months') }}</span>
-                                    </h2>
+                                    @if ($solution->sale_price)
+                                        <h2>{{ number_format($solution->sale_price, 0, ',', '.') }} <span>Đ</span></h2>
+                                        @if ($solution->price > $solution->sale_price)
+                                            <div class="original-price">
+                                                <del>{{ number_format($solution->price, 0, ',', '.') }}Đ</del>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <h2>{{ number_format($solution->price, 0, ',', '.') }} <span>Đ</span></h2>
+                                    @endif
                                 @endif
-                            @else
-                                @if ($solution->sale_price)
-                                    <h2>{{ number_format($solution->sale_price, 0, ',', '.') }} <span>Đ</span></h2>
-                                @else
-                                    <h2>{{ number_format($solution->price, 0, ',', '.') }} <span>Đ</span></h2>
-                                @endif
-                            @endif
-                            <h6>
+                            </div>
+
+                            <!-- Tên gói dịch vụ -->
+                            <h6 class="package-title">
                                 {{ $solution->categoryObject->name ?? $solution->name }}
                             </h6>
 
@@ -203,13 +223,12 @@
 
                                 // Kiểm tra nếu có meta_data và có features trong đó
                                 if ($solution->meta_data) {
-                                    $metaData = json_decode($solution->meta_data, true);
+                                    // meta_data đã là array do accessor chuyển đổi
                                     if (
-                                        is_array($metaData) &&
-                                        isset($metaData['features']) &&
-                                        is_array($metaData['features'])
+                                        isset($solution->meta_data['features']) &&
+                                        is_array($solution->meta_data['features'])
                                     ) {
-                                        $features = $metaData['features'];
+                                        $features = $solution->meta_data['features'];
                                     }
                                 }
 
@@ -236,12 +255,12 @@
                                 // Nếu vẫn không có, hiển thị 6 tính năng mẫu
                                 if (empty($features)) {
                                     $features = [
-                                        'Feature 1',
-                                        'Feature 2',
-                                        'Feature 3',
-                                        'Feature 4',
-                                        'Feature 5',
-                                        'Feature 6',
+                                        'Dung lượng: 5GB',
+                                        'Băng thông: Không giới hạn',
+                                        'Database: 3',
+                                        'Email: 5 tài khoản',
+                                        'SSL: Miễn phí',
+                                        'Backup: Hàng tuần',
                                     ];
                                 }
                             @endphp
@@ -249,26 +268,110 @@
                             <ul class="price_features">
                                 @foreach ($features as $feature)
                                     <li>
-                                        {{ $feature }}
+                                        <i class="fa fa-check-circle text-success mr-2"></i> {{ $feature }}
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
-                        <div class="btn-box">
+                        <div class="btn-box 2">
                             @if (isset($solution->categoryObject) && $solution->categoryObject)
-                                <a href="{{ route('category.detail', $solution->categoryObject->slug) }}">
-                                    See Detail
+                                <a href="{{ route('category.detail', $solution->categoryObject->slug) }}"
+                                    class="btn-detail">
+                                    <span>Xem chi tiết</span> <i class="fa fa-arrow-right ml-2"></i>
                                 </a>
                             @else
-                                <a href="{{ route('service.detail', $solution->slug) }}">
-                                    See Detail
+                                <a href="{{ route('service.detail', $solution->slug) }}" class="btn-detail">
+                                    <span>Xem chi tiết</span> <i class="fa fa-arrow-right ml-2"></i>
                                 </a>
                             @endif
                         </div>
                     </div>
                 @empty
                     <!-- Hiển thị dữ liệu mẫu nếu không có sản phẩm nào -->
-                    <!-- ... dữ liệu mẫu ... -->
+                    <div class="box">
+                        <div class="detail-box">
+                            <div class="price-badge">
+                                <h2>199.000 <span>Đ</span></h2>
+                                <div class="period-tag">Tháng</div>
+                            </div>
+
+                            <h6 class="package-title">Hosting Cơ bản</h6>
+
+                            <ul class="price_features">
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Dung lượng: 5GB</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Băng thông: Không giới hạn</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Database: 3</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Email: 5 tài khoản</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> SSL: Miễn phí</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Backup: Hàng tuần</li>
+                            </ul>
+                        </div>
+                        <div class="btn-box">
+                            <a href="#" class="btn-detail">
+                                <span>Xem chi tiết</span> <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="btn-buy">
+                                <i class="fa fa-shopping-cart mr-2"></i> <span>Đặt mua</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="box featured">
+                        <div class="ribbon"><span>Phổ biến</span></div>
+                        <div class="detail-box">
+                            <div class="price-badge">
+                                <h2>349.000 <span>Đ</span></h2>
+                                <div class="period-tag">Tháng</div>
+                            </div>
+
+                            <h6 class="package-title">Hosting Doanh nghiệp</h6>
+
+                            <ul class="price_features">
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Dung lượng: 10GB</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Băng thông: Không giới hạn</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Database: 10</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Email: 20 tài khoản</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> SSL: Miễn phí</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Backup: Hàng ngày</li>
+                            </ul>
+                        </div>
+                        <div class="btn-box">
+                            <a href="#" class="btn-detail">
+                                <span>Xem chi tiết</span> <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="btn-buy">
+                                <i class="fa fa-shopping-cart mr-2"></i> <span>Đặt mua</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="box">
+                        <div class="detail-box">
+                            <div class="price-badge">
+                                <h2>899.000 <span>Đ</span></h2>
+                                <div class="period-tag">Tháng</div>
+                            </div>
+
+                            <h6 class="package-title">Hosting Cao cấp</h6>
+
+                            <ul class="price_features">
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Dung lượng: 30GB</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Băng thông: Không giới hạn</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Database: Không giới hạn</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Email: Không giới hạn</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> SSL: Wildcard</li>
+                                <li><i class="fa fa-check-circle text-success mr-2"></i> Backup: Tự động mỗi giờ</li>
+                            </ul>
+                        </div>
+                        <div class="btn-box">
+                            <a href="#" class="btn-detail">
+                                <span>Xem chi tiết</span> <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="btn-buy">
+                                <i class="fa fa-shopping-cart mr-2"></i> <span>Đặt mua</span>
+                            </a>
+                        </div>
+                    </div>
                 @endforelse
             </div>
         </div>
@@ -448,4 +551,159 @@
     <!-- end contact section -->
 
     <!-- info section -->
+
 @endsection
+
+@push('header_css')
+    <style>
+        .price_container .box {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .price_container .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .price_container .box.featured {
+            border: 2px solid #4154f1;
+            transform: scale(1.03);
+            z-index: 1;
+        }
+
+        .price_container .ribbon {
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            transform: rotate(45deg);
+            width: 150px;
+            background: #4154f1;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .price_container .ribbon span {
+            display: block;
+            padding: 5px 0;
+        }
+
+        .price-badge {
+            text-align: center;
+            padding: 20px 0;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 0 0 50% 50% / 20px;
+            margin-bottom: 15px;
+        }
+
+        .price-badge h2 {
+            font-size: 32px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .price-badge h2 span {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .period-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .original-price {
+            font-size: 16px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .package-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 15px 0;
+            color: #333;
+        }
+
+        .price_features {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .price_features li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .price_features li:last-child {
+            border-bottom: none;
+        }
+
+        .price_features i {
+            color: #10b981;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn-box 2 {
+            display: flex;
+            flex-direction: column;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            gap: 10px;
+        }
+
+        .btn-detail,
+        .btn-buy {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-detail {
+            background: transparent;
+            color: #4154f1;
+            border: 1px solid #4154f1;
+        }
+
+        .btn-buy {
+            background: #4154f1;
+            color: white;
+        }
+
+        .btn-detail:hover {
+            background: rgba(65, 84, 241, 0.1);
+        }
+
+        .btn-buy:hover {
+            background: #2a3bf1;
+        }
+
+        @media (max-width: 768px) {
+            .price_container .box.featured {
+                transform: none;
+            }
+        }
+    </style>
+@endpush

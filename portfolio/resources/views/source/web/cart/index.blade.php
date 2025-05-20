@@ -52,6 +52,17 @@
                                                             <div class="small text-muted">Tự động gia hạn: Có</div>
                                                         @endif
                                                     </td>
+                                                    <td>
+                                                        @php $options = json_decode($item->options, true) ?: []; @endphp
+                                                        <div>Thời hạn: {{ $options['period'] ?? 1 }} năm</div>
+
+                                                        @if ($item->product->type == 'ssl' || $item->product->type == 'domain')
+                                                            <div class="mt-1">
+                                                                <span class="badge bg-info text-white">Domain:
+                                                                    {{ $options['domain'] ?? 'N/A' }}</span>
+                                                            </div>
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $item->formatted_unit_price }}</td>
                                                     <td>
                                                         <form action="{{ route('cart.update', $item->id) }}" method="post"
@@ -68,7 +79,8 @@
                                                     </td>
                                                     <td>{{ $item->formatted_subtotal }}</td>
                                                     <td>
-                                                        <form action="{{ route('cart.remove', $item->id) }}" method="post">
+                                                        <form action="{{ route('cart.remove', $item->id) }}"
+                                                            method="post">
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-danger">
                                                                 <i class="fa fa-trash"></i>

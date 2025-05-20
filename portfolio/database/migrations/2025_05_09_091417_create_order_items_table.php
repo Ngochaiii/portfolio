@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('total', 12, 2);
             $table->json('options')->nullable();
             $table->integer('duration')->nullable();
+            $table->string('domain')->nullable();
             $table->unsignedBigInteger('service_id')->nullable();
             $table->timestamps();
 

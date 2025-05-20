@@ -71,6 +71,57 @@
                             </div>
                         </div>
 
+                        <!-- Thêm phần hiển thị thông tin dịch vụ và domain -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Thông tin dịch vụ</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Dịch vụ</th>
+                                                <th>Thời hạn</th>
+                                                <th>Domain</th>
+                                                <th>Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($invoice->order->items as $item)
+                                                @php
+                                                    $options = json_decode($item->options, true) ?: [];
+                                                    $period = $options['period'] ?? $item->duration ?? 1;
+                                                    $domain = $item->domain ?? ($options['domain'] ?? 'N/A');
+
+                                                    // Kiểm tra xem item có phải là SSL hoặc domain không
+                                                    $isSSLorDomain = $item->product && ($item->product->type == 'ssl' || $item->product->type == 'domain');
+                                                @endphp
+                                                <tr>
+                                                    <td>{{ $item->name }}</td>
+                                                    <td>{{ $period }} năm</td>
+                                                    <td>
+                                                        @if($isSSLorDomain && $domain != 'N/A')
+                                                            <span class="badge bg-info text-white">{{ $domain }}</span>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ number_format($item->subtotal, 0, ',', '.') }} đ</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" class="text-end">Tổng cộng:</th>
+                                                <th class="text-end">{{ number_format($invoice->total_amount, 0, ',', '.') }} đ</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0">Thông tin chuyển khoản</h5>

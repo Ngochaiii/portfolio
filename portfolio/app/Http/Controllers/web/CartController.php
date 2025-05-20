@@ -39,6 +39,21 @@ class CartController extends Controller
 
             // Lấy thông tin sản phẩm
             $product = Products::findOrFail($request->product_id);
+            $rules = [
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|integer|min:1',
+                'options.period' => 'required|integer|in:1,2,3,5',
+            ];
+
+            // Thêm validation cho domain dựa vào loại sản phẩm
+            if ($product->type == 'ssl' || $product->type == 'domain') {
+                $rules['options.domain'] = 'required|string|max:255|regex:/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/';
+            }
+
+            $validated = $request->validate($rules, [
+                'options.domain.required' => 'Vui lòng nhập tên miền cho dịch vụ này',
+                'options.domain.regex' => 'Tên miền không hợp lệ'
+            ]);
 
             // Kiểm tra sản phẩm có hợp lệ không
             if ($product->customer_id || $product->product_status !== 'active') {

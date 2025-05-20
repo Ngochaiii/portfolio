@@ -1,237 +1,317 @@
-<!DOCTYPE html>
-<html lang="vi">
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo giá #{{ $quoteNumber }}</title>
-    <style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Báo giá</title>
+    <style type="text/css">
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
-            line-height: 1.5;
-            color: #333;
-            margin: 0;
-            padding: 20px;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 10pt;
+            line-height: 1.2;
+            color: #333333;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            max-width: 200px;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            font-size: 20px;
-            margin: 0 0 5px;
-            color: #2c3e50;
-        }
-
-        .quote-info {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .company-info,
-        .customer-info {
-            width: 48%;
-            margin-bottom: 20px;
-        }
-
-        .company-info {
-            float: left;
-        }
-
-        .customer-info {
-            float: right;
-            text-align: right;
-        }
-
-        .clearfix:after {
-            content: "";
-            display: table;
-            clear: both;
+        .page-break {
+            page-break-after: always;
         }
 
         table {
-            width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
         }
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        .header {
+            font-size: 20pt;
+            font-weight: bold;
+            text-align: center;
         }
 
-        th {
+        .subheader {
+            font-size: 11pt;
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bg-gray {
             background-color: #f2f2f2;
+        }
+
+        .border-top {
+            border-top: 1px solid #dddddd;
+        }
+
+        .text-center {
+            text-align: center;
         }
 
         .text-right {
             text-align: right;
         }
 
-        .total-row th,
-        .total-row td {
-            font-weight: bold;
-            font-size: 14px;
+        .text-italic {
+            font-style: italic;
         }
 
-        .package-includes {
-            margin-bottom: 20px;
-        }
-
-        .payment-info {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .footer {
-            font-size: 10px;
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
+        .signature-space {
+            height: 50px;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        @if ($config && $config->company_logo)
-            <img src="{{ public_path('storage/' . $config->company_logo) }}" alt="Logo" class="logo">
-        @endif
-        <h1>{{ $config->company_name ?? 'Hostist company' }}</h1>
-        <div class="quote-info">
-            Báo giá #{{ $quoteNumber }} - Ngày: {{ $quoteDate }}
-        </div>
-    </div>
-
-    <div class="clearfix">
-        <div class="company-info">
-            <h3>Thông tin công ty:</h3>
-            <p>{{ $config->company_name ?? 'Hostist company' }}</p>
-            <p>{{ $config->company_address ?? '5335 Gate Pkwy, 2nd Floor, Jacksonville, FL 32256' }}</p>
-            <p>Email: {{ $config->support_email ?? 'supposthostit@gmail.com' }}</p>
-            <p>Điện thoại: {{ $config->support_phone ?? 'N/A' }}</p>
-        </div>
-
-        <div class="customer-info">
-            <h3>Thông tin khách hàng:</h3>
-            <p>{{ $user->name }}</p>
-            <p>{{ $user->address ?? 'Chưa cung cấp địa chỉ' }}</p>
-            <p>Email: {{ $user->email }}</p>
-            @if ($user->customer && $user->customer->website)
-                <p>Website: {{ $user->customer->website }}</p>
-            @endif
-        </div>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Mô tả</th>
-                <th class="text-right">Số lượng</th>
-                <th class="text-right">Đơn giá</th>
-                <th class="text-right">Thành tiền</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($cart->items as $item)
-                @php
-                    $options = json_decode($item->options, true) ?: [];
-                    $period = $options['period'] ?? 1;
-                    $productName = $item->product->name;
-                    $domainName =
-                        $user->customer && $user->customer->website ? $user->customer->website : 'your-domain.com';
-                @endphp
-                <tr>
-                    <td>
-                        {{ $period }} Year {{ $productName }}
-                        @if ($item->product->type == 'ssl')
-                            (Discounted)
-                            for {{ $domainName }}
-                        @endif
-                    </td>
-                    <td class="text-right">{{ $item->quantity }}</td>
-                    <td class="text-right">{{ number_format($item->unit_price, 0, ',', '.') }} đ</td>
-                    <td class="text-right">{{ number_format($item->subtotal, 0, ',', '.') }} đ</td>
-                </tr>
-            @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="3">Tổng phụ</th>
-                <th class="text-right">{{ number_format($subtotal, 0, ',', '.') }} đ</th>
-            </tr>
-            <tr>
-                <th colspan="3">Tín dụng</th>
-                <th class="text-right">0 đ</th>
-            </tr>
-            <tr class="total-row">
-                <th colspan="3">Tổng cộng</th>
-                <th class="text-right">{{ number_format($total, 0, ',', '.') }} đ</th>
-            </tr>
-        </tfoot>
+    <table width="100%" border="0" cellpadding="5" cellspacing="0">
+        <tr>
+            <td align="left" valign="top" width="50%">
+                Logo
+            </td>
+            <td align="right" valign="top" width="50%"></td>
+        </tr>
+        <tr>
+            <td align="center" valign="top" colspan="2" class="header">
+                QUOTATION
+            </td>
+        </tr>
+        <tr>
+            <td align="center" valign="top" colspan="2" class="subheader">
+                CREATED DATE: {{ $quoteDate ?? '20/05/2025' }}<br />
+                VALID FOR: {{ $validity ?? '30 days' }}
+            </td>
+        </tr>
     </table>
 
-    <div class="clearfix">
-        <div class="package-includes" style="width: 48%; float: left;">
-            <h3>Gói bao gồm</h3>
-            <ul>
-                @if ($cart->items[0]->product->type == 'ssl')
-                    <li>Automatic Activation</li>
-                    <li>Immediate Issuance (with DV certificates)</li>
-                    <li>Unlimited Reissuance</li>
-                    <li>Website Identity Verification</li>
-                    <li>Encrypted Data Transmission</li>
-                    <li>HTTPS Website Security</li>
-                    <li>Improved Search Rankings</li>
-                    <li>Builds Customer Trust</li>
-                @else
-                    <li>24/7 Technical Support</li>
-                    <li>99.9% Uptime Guarantee</li>
-                    <li>Free SSL Certificate</li>
-                    <li>Easy Control Panel</li>
-                    <li>Daily Backups</li>
-                    <li>Unlimited Bandwidth</li>
-                @endif
-            </ul>
-        </div>
+    <!-- Company and customer information -->
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+        <tr>
+            <td width="49%" valign="top">
+                <table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#dddddd">
+                    <tr>
+                        <td class="bg-gray bold">PROVIDER</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{ $config->company_name ?? 'Hostist company' }}<br />
+                            {{ $config->company_address ?? '5335 Gate Pkwy, 2nd Floor, Jacksonville, FL 32256' }}<br />
+                            Email: {{ $config->support_email ?? 'supporthostit@gmail.com' }}<br />
+                            URL: {{ $config->website ?? 'www.hostist.com' }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td width="2%"></td>
+            <td width="49%" valign="top">
+                <table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#dddddd">
+                    <tr>
+                        <td class="bg-gray bold">CLIENT</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{ $user->name ?? 'Customer' }}<br />
+                            Address: {{ $user->address ?? 'Address not provided' }}<br />
+                            Phone: {{ $user->phone ?? 'N/A' }}<br />
+                            Email: {{ $user->email ?? '' }}<br />
+                            @if (isset($user->customer) && isset($user->customer->website))
+                                URL: {{ $user->customer->website }}
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-        <!-- Trong phần payment info của file PDF -->
-        <div class="payment-info">
-            <h3>Thông tin thanh toán</h3>
-            <p><strong>Số tiền:</strong> {{ number_format($total, 0, ',', '.') }} đ</p>
-            <p><strong>Ngân hàng:</strong> ACB</p>
-            <p><strong>Số tài khoản:</strong> {{ $config->company_bank_account_number ?? '24768' }}</p>
-            <p><strong>Nội dung:</strong> {{ str_replace('QUOTE-', 'HD', $quoteNumber) }}</p>
-            <p><strong>Ngày hết hạn:</strong> {{ $expireDate }}</p>
+    <!-- Tiêu đề nội dung -->
+    <table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#dddddd"
+        style="margin-top: 10px;">
+        <tr>
+            <td align="center" class="bg-gray bold">
+                CONTENTS: QUOTATION FOR {{ strtoupper($cart->items[0]->product->type ?? 'SSL') }} PACKAGE FOR WEBSITE
+            </td>
+        </tr>
+    </table>
 
-            <!-- QR code -->
-            <div style="text-align: center; margin-top: 20px;">
-                @if (isset($qrCodePath) && file_exists($qrCodePath))
-                    <img src="{{ $qrCodePath }}" alt="QR Code" style="max-width: 150px;">
-                @else
-                    <p>Mã QR không khả dụng</p>
-                @endif
-            </div>
-        </div>
-    </div>
+    <!-- Bảng sản phẩm -->
+    <table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#dddddd" style="margin-top: 0px;">
+        <tr class="bg-gray bold">
+            <td width="3%" align="center">#</td>
+            <td width="45%" align="center">DESCRIPTION</td>
+            <td width="7%" align="center">QUANTITY</td>
+            <td width="7%" align="center">DURATION<br />(YEAR)</td>
+            <td width="10%" align="center">SERVER</td>
+            <td width="10%" align="center">KEYPAIR</td>
+            <td width="9%" align="center">UNIT PRICE<br />(VND)</td>
+            <td width="9%" align="center">AMOUNT<br />(VND)</td>
+        </tr>
 
-    <div class="footer">
-        <p>Cảm ơn bạn đã lựa chọn dịch vụ của chúng tôi. Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ
-            {{ $config->support_email ?? 'supposthostit@gmail.com' }}</p>
-        <p>Báo giá này có hiệu lực đến ngày {{ $expireDate }}</p>
-    </div>
+        @foreach ($cart->items as $index => $item)
+            @php
+                $options = json_decode($item->options, true) ?: [];
+                $period = $options['period'] ?? 1;
+                $domain = $options['domain'] ?? null;
+                $server = isset($options['server']) ? $options['server'] : 'Không giới hạn';
+                $keypair = isset($options['keypair']) ? $options['keypair'] : 'Không giới hạn';
+            @endphp
+            <tr>
+                <td align="center" valign="top">{{ $index + 1 }}</td>
+                <td valign="top"> Providing international public digital certificate
+                    {{ $item->product->name ?? 'SSL' }} for website domain.<br /> - Package: 01
+                    {{ $item->product->name ?? 'SSL Certificate' }}<br /> - Domain in use:
+                    {{ $domain ? '*.' . $domain : 'N/A' }}<br /> - Verification level: Domain verification<br /><br />
+                    Included:<br /> - Direct certificate management account access (https://gcc.globalsign.com)<br /> -
+                    Unlimited server installations<br /> - Unlimited keypairs for server use<br /> - Support and
+                    troubleshooting within 24 hours<br /> - Valid products/services with genuine origin, receiving
+                    technical support and after-sales warranty service according to supplier standards. </td>
+                <td align="center" valign="middle">{{ $item->quantity }}</td>
+                <td align="center" valign="middle">{{ $period }} year</td>
+                <td align="center" valign="middle">{{ $server }}</td>
+                <td align="center" valign="middle">{{ $keypair }}</td>
+                <td align="right" valign="middle">{{ number_format($item->unit_price, 0, ',', '.') }} đ</td>
+                <td align="right" valign="middle">{{ number_format($item->subtotal, 0, ',', '.') }} đ</td>
+            </tr>
+        @endforeach
+
+        <tr>
+            <td colspan="6"></td>
+            <td align="right" class="bold">Total</td>
+            <td align="right" class="bold">{{ number_format($total, 0, ',', '.') }} đ</td>
+        </tr>
+
+        @if (isset($discount) && $discount > 0)
+            <tr>
+                <td colspan="6"></td>
+                <td align="right">Giảm giá</td>
+                <td align="right">{{ number_format($discount, 0, ',', '.') }} đ</td>
+            </tr>
+            <tr>
+                <td colspan="6"></td>
+                <td align="right" class="bold">Total after discount</td>
+                <td align="right" class="bold">{{ number_format($total - $discount, 0, ',', '.') }} đ</td>
+            </tr>
+        @endif
+    </table>
+
+    <!-- Amount in words -->
+    <table width="100%" border="0" cellpadding="5" cellspacing="0" style="margin-top: 5px;">
+        <tr>
+            <td align="center" class="text-italic">
+                Amount in words: {{ $total_in_words ?? 'Contact us for more details' }}
+            </td>
+        </tr>
+        <tr>
+            <td align="center" class="text-italic" style="font-size: 9pt;">
+                (Quotation includes all applicable taxes and fees)
+            </td>
+        </tr>
+    </table>
+
+    <!-- Technical specifications and payment -->
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+        <tr>
+            <td width="58%" valign="top">
+                <table width="100%" border="0" cellpadding="5" cellspacing="0">
+                    <tr>
+                        <td><b>Standard Technical Specifications:</b></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                @if (isset($cart->items[0]->product) && $cart->items[0]->product->type == 'ssl')
+                                    <li>Certificate Type: {{ $cart->items[0]->product->name ?? 'SSL Certificate' }}
+                                    </li>
+                                    <li>Website domain verification</li>
+                                    <li>Key length from 2048 bit</li>
+                                    <li>Security standard from 128 bit to 256 bit - RSA & DSA Algorithm Support</li>
+                                    @if (strpos(strtolower($cart->items[0]->product->name ?? ''), 'wildcard') !== false)
+                                        <li>Wildcard extension support</li>
+                                    @endif
+                                    <li>Secure Site Seal:
+                                        {{ strpos(strtolower($cart->items[0]->product->name ?? ''), 'alpha') !== false ? 'Alpha Seal' : 'Secure Seal' }}
+                                    </li>
+                                    <li>Unlimited reissues and number of digital certificates issued</li>
+                                    @if (strpos(strtolower($cart->items[0]->product->name ?? ''), 'wildcard') !== false)
+                                        <li>Unlimited first-level subdomains using digital certificate (*.*)</li>
+                                    @endif
+                                    <li>Compatible with 99.999% of browsers and operating systems</li>
+                                    <li>Certificate warranty coverage of $10,000 USD</li>
+                                @elseif (isset($cart->items[0]->product) && $cart->items[0]->product->type == 'hosting')
+                                    <li>Operating System: Linux</li>
+                                    <li>Control Panel: cPanel</li>
+                                    <li>PHP 5.6 - 8.2</li>
+                                    <li>MySQL 5.7+</li>
+                                    <li>Free Let's Encrypt SSL</li>
+                                    <li>Daily Backup</li>
+                                    <li>Anti-DDoS Protection</li>
+                                    <li>99.9% Uptime Guarantee</li>
+                                    <li>24/7 Technical Support</li>
+                                @elseif (isset($cart->items[0]->product) && $cart->items[0]->product->type == 'domain')
+                                    <li>Full DNS management</li>
+                                    <li>Domain theft protection</li>
+                                    <li>Email forwarding</li>
+                                    <li>URL forwarding</li>
+                                    <li>Custom nameservers</li>
+                                    <li>Domain lock against unauthorized transfers</li>
+                                    <li>Auto-renewal (optional)</li>
+                                @else
+                                    <li>24/7 technical support</li>
+                                    <li>Warranty according to manufacturer standards</li>
+                                    <li>Latest version updates</li>
+                                    <li>User documentation</li>
+                                @endif
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td width="2%"></td>
+            <td width="40%" valign="top">
+                <table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#dddddd"
+                    bgcolor="#f9f9f9">
+                    <tr>
+                        <td>
+                            <p><b>Payment Information</b></p>
+                            <p><b>Amount:</b> {{ number_format($total, 0, ',', '.') }} đ</p>
+                            <p><b>Bank:</b> {{ $config->bank_name ?? 'ACB' }}</p>
+                            <p><b>Account Number:</b> {{ $config->company_bank_account_number ?? '218906666' }}</p>
+                            <p><b>Account Holder:</b> {{ $config->company_name ?? 'Hostist company' }}</p>
+                            <p><b>Reference:</b> {{ str_replace('QUOTE-', 'INV', $quoteNumber) }}</p>
+                            <p><b>Expiration Date:</b> {{ $expireDate }}</p>
+
+                            <div align="center" style="margin-top: 5px;">
+                                <p>QR Code:</p>
+                                @if (isset($qrCodePath) && file_exists($qrCodePath))
+                                    <img src="{{ $qrCodePath }}" alt="QR Code"
+                                        style="width: 80px; height: 80px; border: 1px solid #ddd; padding: 3px; background-color: white;" />
+                                @else
+                                    <div
+                                        style="width: 80px; height: 80px; border: 1px solid #ddd; padding: 3px; background-color: white; margin: 0 auto;">
+                                        QR Code</div>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Footer -->
+    <table width="100%" border="0" cellpadding="5" cellspacing="0" class="border-top"
+        style="margin-top: 20px;">
+        <tr>
+            <td align="center" style="font-size: 9pt;">
+                Thank you for choosing our services. If you have any questions, please contact
+                {{ $config->support_email ?? 'supporthostit@gmail.com' }}
+            </td>
+        </tr>
+        <tr>
+            <td align="center" style="font-size: 9pt;">
+                This quotation is valid until {{ $expireDate }}
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>
