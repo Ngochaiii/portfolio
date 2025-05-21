@@ -48,7 +48,34 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="mb-4">
+                                <div class="card border-primary">
+                                    <div class="card-body bg-gradient"
+                                        style="background: linear-gradient(135deg, #f5f7fa 0%, #e4eff8 100%);">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2 text-center">
+                                                <i class="fas fa-gift fa-3x text-primary"></i>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <h4 class="text-primary mb-2">🎁 Ưu đãi đặc biệt</h4>
+                                                <p class="mb-1"><strong>Nạp từ 10.000.000đ trở lên - Nhận ngay thưởng
+                                                        5%</strong></p>
+                                                <p class="mb-0 text-success">
+                                                    Ví dụ: Nạp 10.000.000đ → Nhận ngay <strong>10.500.000đ</strong> vào tài
+                                                    khoản!
+                                                </p>
+                                                <div class="progress mt-2" style="height: 10px;">
+                                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                                        role="progressbar" style="width: 100%" aria-valuenow="100"
+                                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <p class="small mt-1 mb-0 text-muted">Khuyến mãi áp dụng cho mọi phương thức
+                                                    thanh toán</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="mb-4">
                                 <h5 class="text-primary mb-3">Chọn số tiền nạp</h5>
 

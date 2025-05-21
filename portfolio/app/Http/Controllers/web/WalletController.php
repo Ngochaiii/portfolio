@@ -102,10 +102,24 @@ class WalletController extends Controller
         // Tạo mã giao dịch
         $transactionCode = 'DEP' . time() . Str::random(5);
 
+        // Tính toán số tiền nạp và tiền thưởng (nếu có)
+        $originalAmount = $request->amount;
+        $finalAmount = $originalAmount;
+        $bonusAmount = 0;
+
+        // Kiểm tra điều kiện thưởng: nạp từ 10 triệu trở lên được thưởng 5%
+        if ($originalAmount >= 10000000) {
+            $bonusAmount = round($originalAmount * 5 / 100);
+            $finalAmount = $originalAmount + $bonusAmount;
+
+            // Log để theo dõi
+            Log::info("Tiền thưởng nạp tiền: Gốc: {$originalAmount}, Thưởng 5%: {$bonusAmount}, Tổng: {$finalAmount}");
+        }
+
         // Chuẩn bị dữ liệu email
         $depositData = [
             'transaction_code' => $transactionCode,
-            'amount' => $request->amount,
+            'amount' => $originalAmount,
             'payment_method' => $request->payment_method,
             'customer_name' => $user->name,
             'customer_email' => $user->email,
@@ -113,6 +127,13 @@ class WalletController extends Controller
             'date' => now()->format('d/m/Y H:i:s'),
             'note_format' => $config->deposit_note_format ? str_replace('{customer_id}', $customer->id, $config->deposit_note_format) : "NapTien{$customer->id}",
         ];
+
+        // Thêm thông tin thưởng nếu có
+        if ($bonusAmount > 0) {
+            $depositData['bonus_amount'] = $bonusAmount;
+            $depositData['bonus_percent'] = 5;
+            $depositData['final_amount'] = $finalAmount;
+        }
 
         // Thêm thông tin chi tiết dựa vào phương thức thanh toán
         $paymentDetails = [];
@@ -171,11 +192,18 @@ class WalletController extends Controller
                 break;
         }
 
+        // Thêm thông tin về tiền thưởng vào payment_details
+        if ($bonusAmount > 0) {
+            $paymentDetails['original_amount'] = $originalAmount;
+            $paymentDetails['bonus_amount'] = $bonusAmount;
+            $paymentDetails['bonus_percent'] = 5;
+        }
+
         // Lưu yêu cầu nạp tiền vào database
         $deposit = deposits::create([
             'transaction_code' => $transactionCode,
             'customer_id' => $customer->id,
-            'amount' => $request->amount,
+            'amount' => $finalAmount, // Lưu tổng số tiền đã cộng thưởng
             'payment_method' => $request->payment_method,
             'note' => $depositData['note_format'],
             'status' => 'pending',
