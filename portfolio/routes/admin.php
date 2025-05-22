@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\admin\CashbackAdminController;
+use App\Http\Controllers\Admin\CashbackAdminController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ConfigController;
-use App\Http\Controllers\admin\CustomerController;
+use App\Http\Controllers\Admin\CustomerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepositController;
-use App\Http\Controllers\admin\PaymentController;
+use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ProductsController;
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');

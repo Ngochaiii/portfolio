@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\web\HomepageController;
+use App\Http\Controllers\Web\HomepageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\auth\AuthController;
-use App\Http\Controllers\web\AboutController;
-use App\Http\Controllers\web\CartController;
-use App\Http\Controllers\web\CashbackController;
-use App\Http\Controllers\web\ContactController;
-use App\Http\Controllers\web\CustomerController;
-use App\Http\Controllers\web\InvoiceController;
-use App\Http\Controllers\web\OrderController;
-use App\Http\Controllers\web\PricingController;
-use App\Http\Controllers\web\QuoteController;
-use App\Http\Controllers\web\ServiceController;
-use App\Http\Controllers\web\WalletController;
+use App\Http\Controllers\Web\AboutController;
+use App\Http\Controllers\Web\CartController;
+use App\Http\Controllers\Web\CashbackController;
+use App\Http\Controllers\Web\ContactController;
+use App\Http\Controllers\Web\CustomerController;
+use App\Http\Controllers\Web\InvoiceController;
+use App\Http\Controllers\Web\OrderController;
+use App\Http\Controllers\Web\PricingController;
+use App\Http\Controllers\Web\QuoteController;
+use App\Http\Controllers\Web\ServiceController;
+use App\Http\Controllers\Web\WalletController;
 
 /*
 |--------------------------------------------------------------------------
