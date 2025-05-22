@@ -8,6 +8,6 @@ return [
         'font_cache' => storage_path('fonts/'),
         'default_font' => 'sans-serif',
         'isHtml5ParserEnabled' => true,
-        'isRemoteEnabled' => true,
+        'isRemoteEnabled' => false,
     ],
 ];
