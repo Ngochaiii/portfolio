@@ -110,7 +110,7 @@ class QuoteController extends Controller
     }
 
     /**
-     * Tạo template email đẹp dựa trên mẫu của bạn
+     * Tạo template email
      */
     private function createBeautifulEmailTemplate($data, $userMessage = '')
     {
@@ -144,10 +144,6 @@ class QuoteController extends Controller
                     Providing international public digital certificate " . ($item->product->name ?? 'SSL') . " for website domain.<br /> -
                     Package: 01 " . ($item->product->name ?? 'SSL Certificate') . "<br /> - Domain in use:
                     " . ($domain ? '*.' . $domain : 'N/A') . "<br /> - Verification level: Domain verification<br /><br />
-                    Included:<br /> - Direct certificate management account access (https://gcc.globalsign.com)<br /> -
-                    Unlimited server installations<br /> - Unlimited keypairs for server use<br /> - Support and
-                    troubleshooting within 24 hours<br /> - Valid products/services with genuine origin, receiving
-                    technical support and after-sales warranty service according to supplier standards.
                 </td>
                 <td style='font-size: 12px; font-family: \"Open Sans\", sans-serif; color: #646a6e; line-height: 18px; vertical-align: top; padding:10px 0;'>
                     <small>{$server}</small>
@@ -326,21 +322,21 @@ class QuoteController extends Controller
                         </td>
                     </tr>
                 </table>
-            </td>
-        </tr>
-    </table>
-    <!-- /Header -->
-
-    {$messageSection}
-
-    <!-- Tiêu đề nội dung -->
-    <table width='100%' border='1' cellpadding='5' cellspacing='0' bordercolor='#dddddd' style='margin-top: 10px;'>
+                 <!-- Tiêu đề nội dung -->
+    <table width='50%' border='0' cellpadding='0' cellspacing='0' align='center' class='fullTable' bgcolor='#e1e1e1'>
         <tr>
             <td align='center' class='bg-gray bold'>
                 CONTENTS: QUOTATION FOR " . strtoupper($cart->items[0]->product->type ?? 'SSL') . " PACKAGE FOR WEBSITE
             </td>
         </tr>
     </table>
+            </td>
+
+        </tr>
+    </table>
+    <!-- /Header -->
+
+    {$messageSection}
 
     <!-- Order Details -->
     <table width='100%' border='0' cellpadding='0' cellspacing='0' align='center' class='fullTable' bgcolor='#e1e1e1'>
@@ -459,9 +455,10 @@ class QuoteController extends Controller
                                                 <td>
                                                     <table width='220' border='0' cellpadding='0' cellspacing='0' align='left' class='col'>
                                                         <tbody>
+                                                        <tr><td class='bg-gray bold'>Payment Information</td></tr>
                                                             <tr>
                                                                 <td>
-                                                                    <p><b>Payment Information</b></p>
+                                                                    <p><b></b></p>
                                                                     <p><b>Amount:</b> " . number_format($total, 0, ',', '.') . " đ</p>
                                                                     <p><b>Bank:</b> " . ($config->bank_name ?? 'ACB') . "</p>
                                                                     <p><b>Account Number:</b> " . ($config->company_bank_account_number ?? '218906666') . "</p>
@@ -478,7 +475,7 @@ class QuoteController extends Controller
                                                     </table>
                                                     <table width='220' border='0' cellpadding='0' cellspacing='0' align='right' class='col'>
                                                         <tbody>
-                                                            <tr><td><b>Standard Technical Specifications:</b></td></tr>
+                                                        <tr><td class='bg-gray bold'>Standard Technical Specifications:</td></tr>
                                                             <tr>
                                                                 <td>
                                                                     <ul style='margin: 0; padding-left: 20px;'>
